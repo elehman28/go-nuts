@@ -2,6 +2,8 @@
 
 **Live app:** https://go-nuts-mepgzkf6appmyn8z3rqm8ts.streamlit.app/
 
+**Demo video (57 s, narrated):** [report/go-nuts-demo.mp4](report/go-nuts-demo.mp4)
+
 Go Nuts is a team of AI agents that helps people with nut allergies eat out. It reads real
 restaurant menus, starting with **New Haven, CT**, and tells you which restaurants have dishes with
 no nuts listed, which dishes to avoid (including hidden nuts, like the cashews in most vegan

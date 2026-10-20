@@ -166,7 +166,7 @@ svg{width:100%;height:auto;margin:.6rem 0}
 <h1>Eating out with a nut allergy, without the guesswork</h1>
 <p class="lede">An agent team that reads restaurants' real menus, rates every dish for peanut and tree-nut risk with the menu's own words as evidence, and helps diners call ahead.</p>
 <p class="meta">${author} · ${course} · October 2026<br>
-Live app: <b>${app_link}</b><br>GitHub: <b>${repo_link}</b><br>
+Live app: <b>${app_link}</b><br>GitHub: <b>${repo_link}</b><br>Demo video (57 s, narrated): <b><a href='https://github.com/elehman28/go-nuts/blob/main/report/go-nuts-demo.mp4'>report/go-nuts-demo.mp4</a></b><br>
 Model: gpt-6-luna via Portkey (the only model on the course key). All numbers in this report are computed from the app's own database and usage log (${first} to ${last}).</p>
 
 <div>

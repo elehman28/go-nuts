@@ -136,6 +136,9 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
   (retake with `python report/shots.py report/img` while the app runs; needs Chrome + websockets). Research: report/research-notes.md.
 - First users (Oct 21): the student (feedback form, 20 -> 5 min) and two testers (8 -> 2, 13 -> 1 min,
   relayed by the student). Both testers consented to anonymous quotes in the report and slides.
+- Demo video: report/go-nuts-demo.mp4 (57 s, voice Allison (Enhanced), made with `python report/demo_video.py OUT`
+  + ffmpeg, 0 tokens). Olmo Bagels: the map entry 'the-bagelry' (93 Whitney) was renamed by hand; its menu is
+  on Toast (blocked), and a scan's OpenStreetMap update may rename it back. Uber Eats / DoorDash: not used (terms).
 - Ideas the student liked but not built: Menu Watcher, Accuracy Auditor, call script, cuisine /
   open-now filters, international travel.
 - Still to do (due Mon Oct 26, 6 PM): GitHub + Streamlit Cloud deploy (ask the professor about the
