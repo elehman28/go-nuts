@@ -72,13 +72,15 @@ DIAGRAM = """
     <text x="547" y="131" text-anchor="middle" class="s">restaurants, phones,</text><text x="547" y="147" text-anchor="middle" class="s">addresses · plain code</text>
     <rect x="668" y="86" width="212" height="78" rx="8" class="box ai"/><text x="774" y="112" text-anchor="middle" class="t">Menu Fetcher</text>
     <text x="774" y="131" text-anchor="middle" class="s">websites, PDFs, GoNation, charts;</text><text x="774" y="147" text-anchor="middle" class="s">menu photos with AI</text>
-    <rect x="128" y="262" width="250" height="78" rx="8" class="box ai"/><text x="253" y="288" text-anchor="middle" class="t">Menu Analyst</text>
-    <text x="253" y="307" text-anchor="middle" class="s">rates every dish for nut risk</text><text x="253" y="323" text-anchor="middle" class="s">with a quote from the menu · AI</text>
-    <rect x="522" y="262" width="250" height="78" rx="8" class="box"/><text x="647" y="288" text-anchor="middle" class="t">Verifier</text>
-    <text x="647" y="307" text-anchor="middle" class="s">blocks injection, checks quotes,</text><text x="647" y="323" text-anchor="middle" class="s">re-scans for nuts · plain code</text>
+    <rect x="40" y="262" width="250" height="78" rx="8" class="box ai"/><text x="165" y="288" text-anchor="middle" class="t">Menu Analyst</text>
+    <text x="165" y="307" text-anchor="middle" class="s">rates every dish for nut risk</text><text x="165" y="323" text-anchor="middle" class="s">with a quote from the menu · AI</text>
+    <rect x="325" y="262" width="250" height="78" rx="8" class="box"/><text x="450" y="288" text-anchor="middle" class="t">Verifier</text>
+    <text x="450" y="307" text-anchor="middle" class="s">blocks injection, checks quotes</text><text x="450" y="323" text-anchor="middle" class="s">and chat answers · plain code</text>
+    <rect x="610" y="262" width="250" height="78" rx="8" class="box ai"/><text x="735" y="288" text-anchor="middle" class="t">Food Guide</text>
+    <text x="735" y="307" text-anchor="middle" class="s">answers diners' questions in chat,</text><text x="735" y="323" text-anchor="middle" class="s">from checked menus · AI</text>
   </g>
   <path d="M100 66 V86" class="ln" marker-end="url(#a)"/>
-  <path d="M115 164 V190 M331 164 V190 M547 164 V190 M774 164 V190 M253 234 V262 M647 234 V262" class="ln"/>
+  <path d="M115 164 V190 M331 164 V190 M547 164 V190 M774 164 V190 M165 234 V262 M450 234 V262 M735 234 V262" class="ln"/>
   <rect x="20" y="366" width="260" height="50" rx="6" class="ext"/><text x="150" y="388" text-anchor="middle" class="t">OpenStreetMap</text>
   <text x="150" y="405" text-anchor="middle" class="s">restaurants, phones, addresses</text>
   <rect x="320" y="366" width="260" height="50" rx="6" class="ext"/><text x="450" y="388" text-anchor="middle" class="t">Restaurant websites</text>
@@ -115,6 +117,7 @@ V = dict(
     run_tokens=n(S["menu_run_tokens_median"]), run_secs=S["menu_run_seconds_median"], menu_runs=n(S["menu_runs"]),
     a_med=n(S["analysis_tokens_median"]), a_mean=n(S["analysis_tokens_mean"]), a_max=n(S["analysis_tokens_max"]),
     summ_cost=money(summ, 5), summ_tokens=n(S["summary_run_tokens_mean"]),
+    guide_q=n(S["guide_questions"]), guide_tokens=n(S["guide_tokens_mean"]), guide_cost=money(S["guide_cost_mean"], 5),
     lookups=n(S["cache_lookups"]), hits=n(S["cache_hits"]), hit_pct=f"{100 * hit:.0f}%",
     saved=n(S["tokens_saved_by_cache"]),
     per_check=money(per_check, 5), per_user=money(per_user, 4), u100=money(per_user * 100, 2),
@@ -198,7 +201,7 @@ Model: gpt-6-luna via Portkey (the only model on the course key). All numbers in
 <div class="grid2">${img_card}${img_dishes}</div>
 
 <h2>3. Agent design</h2>
-<p>Go Nuts is a team of six agents that talk through a shared message bus. Any agent can hand a task to any other, and the bus records every hand-off for the Agent trace and stops runaway delegation (no loops, at most 8 levels deep and 60 hand-offs per request). Only three agents use the model, and only when they must; the other three are plain code, which makes them free, fast and predictable.</p>
+<p>Go Nuts is a team of seven agents that talk through a shared message bus. Any agent can hand a task to any other, and the bus records every hand-off for the Agent trace and stops runaway delegation (no loops, at most 8 levels deep and 60 hand-offs per request). Four agents use the model, and only when they must; the other three are plain code, which makes them free, fast and predictable.</p>
 ${diagram}
 <table><tr><th>Agent</th><th>Role</th><th>Tools</th><th>Model?</th></tr>
 <tr><td>Finder</td><td>Turns a place (or "Near me") into nearby restaurants with phone numbers and addresses</td><td>OpenStreetMap (Overpass, four mirrors with caching), reverse address lookup</td><td>No</td></tr>
@@ -206,7 +209,8 @@ ${diagram}
 <tr><td>Menu Analyst</td><td>Rates every dish (contains / likely / unclear / no nuts listed) with a word-for-word quote and a reason; notes the kitchen's allergy statements</td><td><code>delegate</code> tool (any teammate)</td><td>Yes</td></tr>
 <tr><td>Verifier</td><td>Removes prompt-injection lines before the AI sees a menu; checks quotes; flags hidden nuts; screens community posts and photos for personal information</td><td>Text matching, hidden-nut list (seeded plus community warnings)</td><td>No</td></tr>
 <tr><td>Summarizer</td><td>Ranks restaurants for the diner's profile; writes a short verdict and questions for the server</td><td><code>delegate</code> tool</td><td>Yes</td></tr>
-<tr><td>Cost Control</td><td>Caches every analysis by restaurant and by menu text; enforces session (150K) and daily (2M) token budgets</td><td>SQLite</td><td>No</td></tr></table>
+<tr><td>Cost Control</td><td>Caches every analysis by restaurant and by menu text; enforces session (150K) and daily (2M) token budgets</td><td>SQLite</td><td>No</td></tr>
+<tr><td>Food Guide</td><td>Answers chat questions ("I just ate pad thai, are there usually nuts in it?", "What could I order at September in Bangkok?"). Plain code first finds the restaurants named (typos allowed) and real counts from checked menus ("pad thai": 9 of 11 listings contain nuts); one model call writes the answer; the Verifier checks it</td><td>Summarizer (saved dish ratings), Verifier, Cost Control</td><td>Yes</td></tr></table>
 <p><b>Model choice.</b> The course key allows only gpt-6-luna, so the design question was how to use it well. It reads photos (tested on a tilted, blurred menu photo: every dish, nut and price correct; one misspelling), follows a strict JSON format, and is inexpensive. Two real-model findings shaped the design: big menus were cut off because hidden reasoning counts toward the output limit, so the Analyst reads menus in 4,000-character pieces with reasoning turned off (measured below), and one call stalled for over six minutes, so every call now has a 90-second timeout.</p>
 
 <h3>One real run, step by step</h3>
@@ -231,6 +235,7 @@ ${img_injection}
 <tr><td>Fresh menu check, mean (big menus pull it up)</td><td class="num">${a_mean} per analysis</td><td class="num">${run_mean}</td></tr>
 <tr><td>Largest single menu (232 dishes)</td><td class="num">${a_max}</td><td class="num">about ${max_cost}</td></tr>
 <tr><td>Summary only, when the menu analysis is already saved</td><td class="num">${summ_tokens}</td><td class="num">${summ_cost}</td></tr>
+<tr><td>One chat question to the Food Guide, mean of ${guide_q} real questions</td><td class="num">${guide_tokens}</td><td class="num">${guide_cost}</td></tr>
 <tr><td>Restaurant already checked and summary saved</td><td class="num">0</td><td class="num">$$0</td></tr></table>
 <p>A typical fresh check takes ${run_secs} seconds of model time (median). Cost Control answered <b>${hits} of ${lookups} restaurant lookups (${hit_pct}) from saved results</b>, which saved <b>${saved} tokens</b> that would otherwise have been spent re-reading menus.</p>
 <h3>Cost at scale</h3>
@@ -265,6 +270,7 @@ ${img_costs}
 <li><b>Invented or misquoted dishes:</b> every rating needs a word-for-word quote; unverifiable dishes are sent back to the Analyst once and dropped if they aren't on the menu.</li>
 <li><b>Cut-off or garbled answers</b> are detected (finish reason, JSON check) and retried in halves at most once, then reported in plain words.</li>
 <li><b>Misreading charts.</b> Domino's allergen PDF loses its columns as plain text, so we read each mark by its position. A first version counted only check marks and would have shown no nut risk at all; the chart's second symbol (■, "manufactured in a facility that handles peanuts and tree nuts") marks two desserts, which are now flagged.</li>
+<li><b>Chat answers</b> are checked in plain code before they are shown: every dish the Food Guide says a restaurant serves must be on that restaurant's saved menu (otherwise it is flagged as unconfirmed), "safe" and "nut-free" claims are reworded, and when someone says they already ate something or describes symptoms, the answer always starts with the same emergency steps (use epinephrine if prescribed, call 911). Tested with real questions, including one with a typo in the restaurant's name.</li>
 <li><b>Partial menus</b> (fewer than 10 dishes, or a chain's store page) are labeled, listed last, and never shown green.</li>
 <li><b>Honest labels:</b> AI-written text, AI inferences and official chain data are each tagged; diner photos and sample menus are labeled; approximate addresses say so. In one check, 9 map-based addresses were corrected by the restaurants' own websites, including one that was off by about 1,000 street numbers.</li>
 </ul>
@@ -325,7 +331,7 @@ ${img_costs}
 trace_cost = 0.0  # computed from the traced run's logged tokens
 max_cost = S["analysis_tokens_max"]
 report = REPORT.safe_substitute(
-    font_css=FONT_CSS, diagram=DIAGRAM, tests=83,
+    font_css=FONT_CSS, diagram=DIAGRAM, tests=90,
     trace_cost=money((1703 - 1564) * 0.10 / 1e6 + 1564 * 0.01 / 1e6 + 586 * 0.50 / 1e6 + 1127 * 0.10 / 1e6 + 223 * 0.50 / 1e6, 5),
     max_cost=money(S["analysis_tokens_max"] * 0.35 / 1e6, 3),
     scan_used="720K",
@@ -333,8 +339,8 @@ report = REPORT.safe_substitute(
     img_dishes=img("04c_dishes", "Dish by dish: each rating with the menu's own words."),
     img_progress=img("06a_live_progress", "During the run: live, plain-English progress (here: removing hidden instructions)."),
     img_trace=img("08_agent_trace", "The Agent trace of that run: 7 hand-offs, 3,639 tokens, 9.7 seconds."),
-    img_injection=img("06_injection_blocked", "The result: both injection lines blocked, nut dishes still flagged, server questions drafted."),
-    img_costs=img("09_costs", "How it works → Costs in the app: real token counts and cost at scale, from the usage log."),
+    img_injection=img("06_injection_blocked", "The result: both injection lines blocked, nut dishes still flagged, server questions drafted.", "80%"),
+    img_costs=img("09_costs", "How it works → Costs in the app: real token counts and cost at scale, from the usage log.", "75%"),
     img_chef=img("10_chef_card_en", "Allergy chef card, made from the profile (English)."),
     img_chef_ar=img("11_chef_card_ar", "The same card in Arabic, right to left."),
     img_map=img("05_map", "Map: every restaurant, colored by score with a symbol on each pin (readable with color blindness)."),
@@ -390,7 +396,7 @@ svg{max-height:480px}
 <tr><td><b>Go Nuts</b></td><td><b>Yes, with a quote for every dish</b></td><td><b>Yes, 6 languages</b></td></tr></table>
 <p class="small">The AI is never trusted alone: a plain-code Verifier checks every quote and can only raise risk. Nothing is ever called "safe".</p></section>
 
-<section><div class="kicker">Agent design</div><h2>Six agents, three of them plain code</h2>${diagram}</section>
+<section><div class="kicker">Agent design</div><h2>Seven agents, three of them plain code</h2>${diagram}</section>
 
 <section><div class="kicker">Demo: one real run</div><h2>7 hand-offs · 3,639 tokens · 9.7 s</h2>
 <div class="cols"><img class="shot" src="data:image/png;base64,${trace}"><img class="shot" src="data:image/png;base64,${injection}"></div>
@@ -430,7 +436,7 @@ svg{max-height:480px}
 <script>Reveal.initialize({hash:true,width:1280,height:720,margin:0.06,transition:'fade',controls:true,progress:true});</script>
 </body></html>""")
 slides = SLIDES.safe_substitute(
-    reveal_css=reveal_css, reveal_js=reveal_js, font_css=FONT_CSS, diagram=DIAGRAM, tests=83,
+    reveal_css=reveal_css, reveal_js=reveal_js, font_css=FONT_CSS, diagram=DIAGRAM, tests=90,
     trace=b64(HERE / "img" / "08_agent_trace.png"), injection=b64(HERE / "img" / "06_injection_blocked.png"),
     card=b64(HERE / "img" / "04_restaurant_card.png"), map=b64(HERE / "img" / "05_map.png"),
     chef=b64(HERE / "img" / "11_chef_card_ar.png"), **V)

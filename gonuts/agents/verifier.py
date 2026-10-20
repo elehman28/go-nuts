@@ -5,6 +5,9 @@
                     Analyst missed; applies the community hidden-nut list; can only make ratings
                     MORE cautious. Sends unverifiable dishes back to the Analyst once.
 - moderate_post:    screens community reviews and warnings before they are saved
+- check_answer:     checks a Food Guide chat answer: dishes it names must be on that restaurant's
+                    menu, no "safe"/"nut-free" claims, and emergency steps whenever someone says
+                    they already ate something or describes a reaction
 """
 import re
 
@@ -15,6 +18,15 @@ from ..team import Agent
 
 KITCHEN_POLICIES = ("accommodates", "cross_contact_warning", "no_info")
 URL_RE = re.compile(r"https?://|www\.", re.I)
+
+# Chat answers: words that promise too much, and signs the diner may be having a reaction now.
+SAFE_CLAIM_RE = re.compile(r"\b(?:(?:100\s*%|completely|totally|perfectly|definitely|guaranteed)\s+)?"
+                           r"(?:safe|nut[- ]free|allergen[- ]free|peanut[- ]free)\b", re.I)
+ALREADY_ATE_RE = re.compile(r"\b(?:i|we|my \w+|he|she|they)\s+(?:just\s+|already\s+)?(?:ate|eaten|had|tried|drank)\b|"
+                            r"\b(?:itch\w*|hives|swell\w*|throat|tingl\w*|wheez\w*|vomit\w*|can'?t breathe|"
+                            r"trouble breathing|reaction|anaphyla\w*|dizz\w*|rash)\b", re.I)
+EMERGENCY_LINE = ("If you have any signs of a reaction (itching, hives, swelling, trouble breathing, vomiting, "
+                  "dizziness), use your epinephrine if it's prescribed and call 911 now.")
 
 
 def dedupe_dishes(dishes: list[dict]) -> list[dict]:
@@ -40,6 +52,7 @@ class Verifier(Agent):
         "verify_analysis": "payload {raw, menu_text}. Check an Analyst result against the menu text.",
         "check_nickname": "payload {nickname}. Rejects nicknames with contact details or AI instructions.",
         "moderate_post": "payload {text}. Screen a community review or warning before saving it.",
+        "check_answer": "payload {answer, dishes_cited, restaurants, question}. Check a Food Guide chat answer.",
     }
 
     # ------------------------------------------------------------ prompt injection
@@ -180,3 +193,40 @@ class Verifier(Agent):
         if find_pii(nickname) or find_injections(nickname):
             return {"ok": False, "reason": "Please use a nickname without contact details."}
         return {"ok": True, "nickname": nickname or None}
+
+    # ------------------------------------------------------------ Food Guide answers
+
+    def check_answer(self, answer: str, dishes_cited: list, restaurants: list, question: str = ""):
+        """Plain-code checks on a chat answer. Returns the answer to show plus what was changed."""
+        notes = []
+        on_menu = {}
+        for r in restaurants:  # the full saved menu, not just the excerpt the model saw
+            saved = self.db.latest_analysis(r["key"])
+            on_menu[r["key"]] = {normalize(d["name"]) for d in (saved["result"].get("dishes", []) if saved else [])}
+        verified, unverified = [], []
+        for c in dishes_cited if isinstance(dishes_cited, list) else []:
+            if not isinstance(c, dict):
+                continue
+            key, dish = str(c.get("restaurant_key") or ""), str(c.get("dish") or "")
+            (verified if dish and normalize(dish) in on_menu.get(key, set()) else unverified).append(
+                {"restaurant_key": key, "dish": dish})
+        if unverified:
+            names = ", ".join(sorted({u["dish"] for u in unverified if u["dish"]}))[:200]
+            answer += f"\n\n(Go Nuts couldn't find {names} on that menu, so treat it as unconfirmed.)"
+            notes.append("unverified dishes flagged")
+        def reword(m):
+            before = answer[max(0, m.start() - 30):m.start()].lower()
+            if re.search(r"\b(?:not|never|no|isn't|aren't|can't|cannot|can never)\b[^.]*$", before):
+                return m.group(0)  # "never call food safe", "can't be guaranteed nut-free": keep
+            return "lower-risk (still ask staff)" if m.group(0).lower().endswith("safe") else "listed without nuts (still ask staff)"
+
+        softened = SAFE_CLAIM_RE.sub(reword, answer)
+        if softened != answer:
+            notes.append("safety claim reworded")
+            answer = softened
+        if ALREADY_ATE_RE.search(question):
+            # Emergency steps always come first, in the same words every time.
+            rest = re.sub(r"[^.!?\n]*911[^.!?\n]*[.!?]?[ \t]*", "", answer)  # drop the model's own version
+            answer = EMERGENCY_LINE + "\n\n" + rest
+            notes.append("emergency steps put first")
+        return {"answer": answer.strip(), "verified_dishes": verified, "unverified_dishes": unverified, "notes": notes}

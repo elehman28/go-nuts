@@ -58,8 +58,8 @@ def icon(nut: str, mono: str | None = None) -> str:
 
 
 # The app's tabs, in order, and the nut drawn on each.
-TABS = ["Find restaurants", "Map", "Check a menu", "Community", "How it works"]
-TAB_NUTS = ["peanut", "cashew", "almond", "hazelnut", "walnut"]
+TABS = ["Find restaurants", "Map", "Check a menu", "Ask", "Community", "How it works"]
+TAB_NUTS = ["peanut", "cashew", "almond", "pistachio", "hazelnut", "walnut"]
 
 _TAB_ICONS = "\n".join(
     f""".stTabs [role="tab"]:nth-of-type({i}) [data-testid="stMarkdownContainer"] p::before {{

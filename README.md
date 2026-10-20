@@ -20,6 +20,8 @@ always tell your server about your allergy.
 - **Browse:** see every restaurant already checked, ranked, for free.
 - **Check a menu:** paste a menu link (web page or PDF), upload a photo of a menu, paste the text,
   or try a sample menu.
+- **Ask:** chat with the Food Guide about what usually goes into a dish, or what to order at a
+  restaurant Go Nuts has checked. Answers are checked against the saved menus.
 - **Community:** rate how well a restaurant handled your allergy, post photos of your food, and warn
   others about hidden nuts. Warnings make future menu checks more cautious for everyone.
 - **Agent trace:** see every hand-off between agents for your last request.
@@ -30,7 +32,7 @@ always tell your server about your allergy.
 Any agent can delegate a task to any other. They talk through a shared message bus (`gonuts/team.py`),
 which records every hand-off and stops runaway delegation: at most 60 hand-offs per request, chains
 at most 8 deep, and no agent may be handed a task identical to one it is already working on.
-The two AI agents also get a `delegate` tool that lists every teammate and what it can do.
+The AI agents can also get a `delegate` tool that lists every teammate and what it can do.
 
 | Agent | What it does | Uses the model? |
 |---|---|---|
@@ -40,6 +42,7 @@ The two AI agents also get a `delegate` tool that lists every teammate and what 
 | **Verifier** | Checks every quote is really on the menu, re-scans for nut words and hidden nuts, blocks prompt injection, screens community posts. Can only make ratings more cautious | No |
 | **Summarizer** | Ranks restaurants for your profile and drafts questions for the server | Yes |
 | **Cost Control** | Caches every analysis so repeat searches cost nothing; enforces session and daily budgets | No |
+| **Food Guide** | Answers chat questions about dishes and checked restaurants; plain code looks up the menus first, the Verifier checks the answer | Yes |
 
 All model calls use `gpt-6-luna` through Portkey.
 
@@ -110,7 +113,7 @@ enforced, delegation loops stopped, and the `.env` found in the folder above the
 app.py                  the Streamlit interface
 scan_city.py            pre-scan a city's restaurants
 gonuts/team.py          message bus: any agent can delegate to any other, with guardrails
-gonuts/agents/          the six agents
+gonuts/agents/          the seven agents
 gonuts/llm.py           the one place the model is called; token logging and budgets
 gonuts/db.py            SQLite: restaurants, cached analyses, usage, reviews, hidden-nut warnings
 gonuts/nuts.py          nut vocabulary and prompt-injection patterns

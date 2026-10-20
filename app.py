@@ -57,7 +57,13 @@ STEP_TEXT = {
     ("analyst", "recheck_dishes"): "Re-checking dishes the Verifier sent back",
     ("summarizer", "rank_restaurants"): "Ranking restaurants for your profile",
     ("summarizer", "check_menu"): "Starting the menu check",
+    ("guide", "answer_question"): "Looking that up",
+    ("summarizer", "cached_entry"): "Reading that restaurant's checked menu",
+    ("verifier", "check_answer"): "Checking the answer against the menu",
 }
+ASK_EXAMPLES = ["I just ate pad thai. Are there usually nuts in it?",
+                "What could I order at September in Bangkok?",
+                "Is pesto usually made with nuts?"]
 SAMPLE_DIR = Path(__file__).parent / "sample_menus"
 
 
@@ -480,7 +486,7 @@ st.markdown(theme.tip("Questions about an ingredient? Every restaurant has a Cal
 if found_place:
     show_restaurant(found_place, ctx="search")
 
-tab_find, tab_map, tab_menu, tab_community, tab_how = st.tabs(theme.TABS)  # icons: theme.TAB_NUTS
+tab_find, tab_map, tab_menu, tab_ask, tab_community, tab_how = st.tabs(theme.TABS)  # icons: theme.TAB_NUTS
 
 # ---- Find restaurants
 with tab_find:
@@ -717,6 +723,66 @@ with tab_menu:
             if ss.get("menu_is_sample"):
                 st.info("Sample menu: this restaurant and its menu are made up for testing. They are not real.")
             show_entry(entry, ctx="menu")
+
+# ---- Ask: chat with the Food Guide
+def _plain(text: str) -> str:
+    """Model text shown as plain words: no HTML, no markdown links or images."""
+    return escape(text).replace("[", "\\[").replace("](", "\\](").replace("\n", "  \n")
+
+
+with tab_ask:
+    st.markdown("### Ask about a dish or a restaurant")
+    st.caption("For example: what usually goes into a dish, or what to order at a restaurant Go Nuts has checked. "
+               "Answers are AI-written. Go Nuts never calls food safe, so always confirm with staff.")
+    ss.setdefault("chat", [])
+    ss.setdefault("chat_asked", 0)
+    if not ss.chat:
+        cols = st.columns(len(ASK_EXAMPLES))
+        for col, example in zip(cols, ASK_EXAMPLES):
+            if col.button(example, key=f"ask_ex_{example[:12]}", width="stretch"):
+                ss.chat_pending = example
+    for i, msg in enumerate(ss.chat):
+        with st.chat_message(msg["role"], avatar="🥜" if msg["role"] == "assistant" else None):
+            st.markdown(_plain(msg["text"]))
+            meta = msg.get("meta") or {}
+            if msg["role"] == "assistant":
+                parts = ["AI-written"]
+                if meta.get("verified"):
+                    parts.append("checked against the menu: " + ", ".join(meta["verified"]))
+                if meta.get("stats"):
+                    st_ = meta["stats"]
+                    parts.append(f"from {st_['dishes_found']} \"{st_['phrase']}\" dishes on {st_['restaurants']} "
+                                 f"checked menus")
+                parts.append("anything else is general knowledge, and recipes vary")
+                st.markdown(theme.tip(" · ".join(parts)), unsafe_allow_html=True)
+                for r in meta.get("restaurants", []):
+                    tel = places.tel_link(r.get("phone"))
+                    if tel:
+                        st.markdown(f"<a class='gn-btn gn-call' href='{escape(tel)}'>Call {escape(r['name'])} to ask · "
+                                    f"{escape(r['phone'])}</a>", unsafe_allow_html=True)
+    question = st.chat_input("Ask about a dish or a restaurant…", max_chars=config.GUIDE_MAX_QUESTION_CHARS)
+    question = question or ss.pop("chat_pending", None)
+    if question:
+        if ss.chat_asked >= config.GUIDE_MAX_QUESTIONS:
+            st.info(f"That's {config.GUIDE_MAX_QUESTIONS} questions this visit, the limit that keeps Go Nuts free. "
+                    "Refresh the page to start a new chat.")
+        else:
+            history = [{"role": m["role"], "text": m["text"]} for m in ss.chat]
+            ss.chat.append({"role": "user", "text": question})
+            ss.chat_asked += 1
+            out = run("guide", "answer_question", {"question": question, "profile": profile, "history": history},
+                      progress="Looking that up")
+            if out:
+                ss.chat.append({"role": "assistant", "text": out["answer"], "meta": {
+                    "verified": [d["dish"] for d in out.get("verified_dishes", [])][:6],
+                    "stats": out.get("dish_stats"), "restaurants": out.get("restaurants", [])}})
+            else:
+                ss.chat.pop()  # the error is already shown; let them try again
+                ss.chat_asked -= 1
+            st.rerun()
+    if ss.chat and st.button("Clear chat", key="ask_clear"):
+        ss.chat = []
+        st.rerun()
 
 # ---- Community
 with tab_community:

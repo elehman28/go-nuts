@@ -49,6 +49,11 @@ MAX_MENU_IMAGES = 4                # menu pictures on a website read by the mode
 MAX_GONATION_LISTS = 6             # GoNation menu lists tried per restaurant
 # MODEL_TIMEOUT_SECONDS above: one stalled call is retried once by the SDK, then gives up
 
+# ---- Food Guide chat (Ask tab)
+GUIDE_MAX_QUESTION_CHARS = 500     # longer questions are cut
+GUIDE_HISTORY_TURNS = 6            # earlier chat messages sent along for context
+GUIDE_MAX_QUESTIONS = 25           # questions per browser session (each is one model call, ~2-5K tokens)
+
 # ---- Delegation guards (any agent may delegate to any other)
 MAX_HOPS_PER_RUN = 60              # total hand-offs in one user request
 MAX_DELEGATION_DEPTH = 8           # how deep a chain of hand-offs may go

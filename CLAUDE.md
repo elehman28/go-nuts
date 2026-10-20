@@ -4,7 +4,7 @@ Final project for MGT 409 (Yale, AI course, Prof. Tauhid Zaman). Solo project.
 **Due Monday, October 26, 2026 at 6:00 PM on Canvas.**
 
 ## What it is
-A team of six AI agents that helps people with nut allergies eat out, starting in New Haven, CT.
+A team of seven AI agents that helps people with nut allergies eat out, starting in New Haven, CT.
 It reads restaurant menus, rates each dish for nut risk with quoted menu evidence, notes the
 kitchen's allergy policy, ranks restaurants, and drafts questions for the server. Community
 features: reviews (1-5 allergy accommodation rating), food photos, hidden-nut warnings
@@ -139,6 +139,10 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
 - Demo video: report/go-nuts-demo.mp4 (57 s, voice Allison (Enhanced), made with `python report/demo_video.py OUT`
   + ffmpeg, 0 tokens). Olmo Bagels: the map entry 'the-bagelry' (93 Whitney) was renamed by hand; its menu is
   on Toast (blocked), and a scan's OpenStreetMap update may rename it back. Uber Eats / DoorDash: not used (terms).
+- Food Guide chat (Ask tab, gonuts/agents/guide.py): plain code finds named restaurants (typo-tolerant) and real
+  dish counts, one gpt-6-luna call answers, Verifier.check_answer checks dishes against the saved menu, rewords
+  "safe", and puts emergency steps first when someone already ate / has symptoms. 25 questions per session.
+  Real test: ~1.7K tokens, ~$0.0003, ~7 s per question.
 - Ideas the student liked but not built: Menu Watcher, Accuracy Auditor, call script, cuisine /
   open-now filters, international travel.
 - Still to do (due Mon Oct 26, 6 PM): GitHub + Streamlit Cloud deploy (ask the professor about the

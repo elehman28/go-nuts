@@ -56,7 +56,14 @@ def collect() -> dict:
         fails["no menu text on the site (JavaScript, images or ordering app)" if ("no menu" in low or "almost no readable" in low)
               else "site down, gone, or blocking readers" if any(w in low for w in ("connect", "too long", "exist", "find the website",
               "blocked", "server problems", "404")) else "other"] += 1
+    guide = [u for u in usage if u["agent"] == "guide"]
+    gprice = lambda u: config.cost_usd(u["input_tokens"], u["cached_input_tokens"], u["output_tokens"])
     return {
+        "guide_questions": len(guide),
+        "guide_tokens_mean": int(statistics.mean(u["input_tokens"] + u["output_tokens"] for u in guide)) if guide else 0,
+        "guide_tokens_max": max((u["input_tokens"] + u["output_tokens"] for u in guide), default=0),
+        "guide_cost_mean": statistics.mean(gprice(u) for u in guide) if guide else 0,
+        "guide_seconds_mean": round(statistics.mean(u["seconds"] for u in guide), 1) if guide else 0,
         "menu_run_cost_median": statistics.median(price(x) for x in menu_runs) if menu_runs else 0,
         "menu_run_cost_mean": statistics.mean(price(x) for x in menu_runs) if menu_runs else 0,
         "menu_run_tokens_median": int(statistics.median(x["in"] + x["out"] for x in menu_runs)) if menu_runs else 0,

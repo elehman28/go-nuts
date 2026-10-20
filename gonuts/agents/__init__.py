@@ -1,4 +1,4 @@
-"""The six Go Nuts agents. Any agent can delegate a task to any other through the Team bus."""
+"""The seven Go Nuts agents. Any agent can delegate a task to any other through the Team bus."""
 from ..db import DB
 from ..llm import LLM, UsageTracker
 from ..team import Team
@@ -6,10 +6,11 @@ from .analyst import MenuAnalyst
 from .cost_control import CostControl
 from .fetcher import MenuFetcher
 from .finder import Finder
+from .guide import FoodGuide
 from .summarizer import Summarizer
 from .verifier import Verifier
 
-AGENT_CLASSES = [Finder, MenuFetcher, MenuAnalyst, Verifier, Summarizer, CostControl]
+AGENT_CLASSES = [Finder, MenuFetcher, MenuAnalyst, Verifier, Summarizer, CostControl, FoodGuide]
 
 
 def build_team(tracker: UsageTracker | None = None, db: DB | None = None, llm=None) -> Team:
