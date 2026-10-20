@@ -191,6 +191,8 @@ a {{ color: var(--accent); }}
   display: flex; flex-direction: column-reverse; }}
 /* The chat box's "Press Enter to submit form · 0/500" hint overlapped the example text; the Ask button says it. */
 .st-key-gn_chat_body [data-testid="InputInstructions"] {{ display: none; }}
+.st-key-gn_chat_body [data-testid="stFormSubmitButton"] button, .st-key-ask_clear button {{
+  padding-left: 0.4rem; padding-right: 0.4rem; letter-spacing: 1px; min-width: 0; }}
 @media (max-width: 640px) {{ .st-key-gn_chat_fab {{ right: 12px; bottom: 12px; }} }}
 .stTabs [data-baseweb="tab-panel"] {{ padding-top: 2rem; }}
 

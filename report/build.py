@@ -225,7 +225,7 @@ ${diagram}
 <li><b>Summarizer</b> writes the verdict and server questions (1,127 in, 223 out, 3.4 s); Cost Control saves both so the next diner pays nothing. <b>Total: 7 hand-offs, 3,639 tokens, 9.7 seconds.</b></li>
 </ol>
 <div class="grid2">${img_progress}${img_trace}</div>
-${img_injection}
+<div class="grid2">${img_injection}${img_chat}</div>
 
 <h2>4. Tokenomics</h2>
 <p>All figures come from the usage log of every real model call made while building and testing Go Nuts: <b>${calls} calls, ${tin} input tokens (${tcached} of them cached, ${cached_pct}), ${tout} output tokens, ${cost_total} in total</b> at the configured gpt-6-luna prices (${p_in} / ${p_cached} / ${p_out} dollars per million input / cached input / output tokens; from public price trackers, to be confirmed on the Portkey dashboard). The Menu Analyst accounts for ${analyst_share} of all tokens.</p>
@@ -339,7 +339,8 @@ report = REPORT.safe_substitute(
     img_dishes=img("04c_dishes", "Dish by dish: each rating with the menu's own words."),
     img_progress=img("06a_live_progress", "During the run: live, plain-English progress (here: removing hidden instructions)."),
     img_trace=img("08_agent_trace", "The Agent trace of that run: 7 hand-offs, 3,639 tokens, 9.7 seconds."),
-    img_injection=img("06_injection_blocked", "The result: both injection lines blocked, nut dishes still flagged, server questions drafted.", "80%"),
+    img_injection=img("06_injection_blocked", "The result: both injection lines blocked, nut dishes still flagged, server questions drafted."),
+    img_chat=img("13_food_guide_chat", "The Food Guide chat (button at the bottom right of every page): emergency steps first, then a real count from checked menus."),
     img_costs=img("09_costs", "How it works → Costs in the app: real token counts and cost at scale, from the usage log.", "75%"),
     img_chef=img("10_chef_card_en", "Allergy chef card, made from the profile (English)."),
     img_chef_ar=img("11_chef_card_ar", "The same card in Arabic, right to left."),
@@ -404,7 +405,7 @@ svg{max-height:480px}
 
 <section><div class="kicker">The app</div><h2>Find, check, call ahead</h2>
 <div class="cols"><img class="shot" src="data:image/png;base64,${card}"><img class="shot" src="data:image/png;base64,${map}"></div>
-<p class="note">${menus} menus · ${dishes} dishes rated · ${mapped} restaurants mapped · ${phones} with a phone to call</p></section>
+<p class="note">${menus} menus · ${dishes} dishes rated · ${mapped} restaurants mapped · ${phones} with a phone to call · a Food Guide chat on every page</p></section>
 
 <section><div class="kicker">Tokenomics (measured)</div><h2>Cost grows with restaurants, not diners</h2>
 <table><tr><th></th><th class="num">Cost</th></tr><tr><td>Typical fresh menu check (median, ${run_tokens} tokens)</td><td class="num">${run_med}</td></tr>

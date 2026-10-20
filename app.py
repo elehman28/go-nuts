@@ -985,9 +985,16 @@ def food_guide_chat():
     with st.container(key="gn_chat_fab"):
         with st.popover("Ask about a dish", icon="💬"):
             with st.container(key="gn_chat_body"):
-                st.markdown("#### Ask about a dish or a restaurant")
-                st.caption("What usually goes into a dish, or what to order at a restaurant Go Nuts has checked. "
-                           "Answers are AI-written. Go Nuts never calls food safe, so always confirm with staff.")
+                if not ss.chat:
+                    st.markdown("#### Ask about a dish or a restaurant")
+                    st.caption("What usually goes into a dish, or what to order at a restaurant Go Nuts has checked. "
+                               "Answers are AI-written. Go Nuts never calls food safe, so always confirm with staff.")
+                else:  # compact once a chat has started, so answers have room
+                    h1, h2 = st.columns([3, 1], vertical_alignment="center")
+                    h1.markdown("**Food Guide** · AI-written, always confirm with staff")
+                    if h2.button("Clear", key="ask_clear", width="stretch"):
+                        ss.chat = []
+                        st.rerun()
                 older = ss.chat[:-6]
                 if older:
                     with st.expander(f"Earlier messages ({len(older)})"):
@@ -997,15 +1004,12 @@ def food_guide_chat():
                     _show_chat_message(msg)
                 answer_slot = st.container()
                 with st.form("gn_chat_form", clear_on_submit=True, border=False):
-                    typed = st.text_input("Your question", max_chars=config.GUIDE_MAX_QUESTION_CHARS,
+                    c1, c2 = st.columns([3, 1], vertical_alignment="bottom")
+                    typed = c1.text_input("Your question", max_chars=config.GUIDE_MAX_QUESTION_CHARS,
                                           placeholder="e.g. " + ASK_EXAMPLES[(len(ss.chat) // 2) % len(ASK_EXAMPLES)],
                                           label_visibility="collapsed")
-                    c1, c2 = st.columns([3, 1])
                     sent = c2.form_submit_button("Ask", type="primary", width="stretch")
                 question = typed.strip() if sent and typed.strip() else None
-                if ss.chat and st.button("Clear chat", key="ask_clear"):
-                    ss.chat = []
-                    st.rerun()
                 if not question:
                     return
                 with answer_slot:

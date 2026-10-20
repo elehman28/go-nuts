@@ -26,14 +26,15 @@ W, H = 1280, 720
 PORT = 9340
 VOICE, RATE = "Allison (Enhanced)", 185  # the student's pick (free Enhanced voice from System Settings)
 NARRATION = [
-    "Go Nuts helps you eat out with a nut allergy. First, tell it what you're allergic to.",
+    "Tell Go Nuts what you're allergic to.",
     "Search any restaurant by name.",
-    "You'll see its nut-risk score, and you can call the restaurant to ask, with one tap.",
-    "Every dish is rated from the real menu, quoting the menu's own words.",
-    "Or browse all eighty-nine checked restaurants, ranked for your allergies.",
+    "See its nut-risk score, and call to ask with one tap.",
+    "Every dish is rated from the real menu, quoting its own words.",
     "The map shows three hundred eighty New Haven restaurants, colored by score.",
-    "You can also check any menu. Paste it, link it, or snap a photo.",
-    "Hidden instructions in a menu are blocked, and nut dishes are still flagged.",
+    "Or check any menu. Paste it, link it, or snap a photo.",
+    "Hidden instructions in a menu are blocked.",
+    "Got a question? Ask the Food Guide, from any page.",
+    "If you've already eaten something, it starts with the emergency steps.",
     "And show staff an allergy chef card, in six languages.",
     "Go Nuts never calls food safe. Always tell your server, and carry epinephrine.",
 ]
@@ -209,7 +210,7 @@ async def main():
 
         # Each step: caption first, then the action, then a short hold.
         # 1. Profile
-        await cap("Tell Go Nuts <b>what you're allergic to</b>", 2.6, line=0)
+        await cap("Tell Go Nuts <b>what you're allergic to</b>", 1.4, line=0)
         await click("button", "CONTINUE", 1.0)
 
         # 2. Search a restaurant: score and call button, then dish by dish
@@ -219,24 +220,19 @@ async def main():
         await c.js(f"({SCROLL})('h3','September in Bangkok',80)", wait=3.0)
         await cap("Every dish is rated, <b>quoting the menu's own words</b>", line=3)
         await rclick("summary", "Dish by dish")
-        await c.js(f"({SCROLL})('summary','Dish by dish',60)", wait=3.4)
+        await c.js(f"({SCROLL})('summary','Dish by dish',60)", wait=2.8)
 
-        # 3. Browse, ranked for the profile
-        await cap("Browse <b>all 89 checked restaurants</b>, ranked for you", line=4)
         await rclick("summary", "Dish by dish")  # fold the long dish list away again
-        await c.js(TOP, wait=0.6)
-        await click("button", "BROWSE ALL", 0.4)
-        await c.js(f"({SCROLL})('h4','ranked',80)", wait=3.0)
 
         # 4. Map
-        await cap("See <b>380 restaurants</b> on the map, colored by score", line=5)
+        await cap("See <b>380 restaurants</b> on the map, colored by score", line=4)
         await c.js(TOP, wait=0.5)
         await tab("MAP")
         await c.js(IDLE, wait=1.2)
-        await c.js(f"({SCROLL})('[data-testid=stDeckGlJsonChart]','',70)", wait=3.0)
+        await c.js(f"({SCROLL})('[data-testid=stDeckGlJsonChart]','',70)", wait=2.4)
 
         # 5. Check a menu: hidden instructions blocked
-        await cap("Or check <b>any menu</b>: paste it, link it or photograph it", line=6)
+        await cap("Or check <b>any menu</b>: paste it, link it or photograph it", line=5)
         await c.js(TOP, wait=0.5)
         await tab("CHECK A MENU")
         await c.js(IDLE, wait=0.6)
@@ -245,11 +241,31 @@ async def main():
         await c.js("""(async()=>{for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,250));
             if([...document.querySelectorAll('[data-testid=stAlert]')].some(a=>a.innerText.includes('Blocked')))return true;}
             return false})()""")
-        await cap("Hidden instructions in a menu get <b>blocked</b>", line=7)
+        await cap("Hidden instructions in a menu get <b>blocked</b>", line=6)
         await c.js(f"({SCROLL})('[data-testid=stAlert]','Blocked',260)", wait=3.4)
 
-        # 6. Chef card
-        await cap("Show staff an <b>allergy chef card</b>, in six languages", line=8)
+        # 6. The Food Guide chat (floating button, bottom right of every page)
+        await c.js("document.getElementById('demo-cap').style.left='36%'")  # keep clear of the chat panel
+        await cap("Got a question? Ask the <b>Food Guide</b>, from any page", line=7)
+        await c.js(TOP, wait=0.4)
+        await c.js("document.querySelector('.st-key-gn_chat_fab button').click()", wait=1.0)
+        await c.js("(()=>{const i=document.querySelector('[data-testid=stPopoverBody] input');i.focus();i.click();return true})()", wait=0.3)
+        for ch in "I just ate pad thai. Are there usually nuts in it?":
+            await c.call("Input.insertText", text=ch)
+            await asyncio.sleep(0.035)
+        await asyncio.sleep(0.4)
+        await c.js("[...document.querySelectorAll('[data-testid=stPopoverBody] button')].find(b=>b.innerText.trim().toUpperCase()==='ASK').click()")
+        await c.js("""(async()=>{for(let i=0;i<120;i++){await new Promise(r=>setTimeout(r,250));
+            if(document.querySelectorAll('[data-testid=stPopoverBody] [data-testid=stChatMessage]').length>=2
+               &&document.querySelector('[data-testid=stPopoverBody] .st-key-ask_clear')
+               &&!document.querySelector('[data-testid=stStatusWidget]'))return true;}return false})()""", wait=0.4)
+        await cap("Already ate something? It <b>starts with the emergency steps</b>", line=8)
+        await asyncio.sleep(3.8)
+        await c.js("document.querySelector('.st-key-gn_chat_fab button').click()", wait=0.5)  # close the chat
+        await c.js("document.getElementById('demo-cap').style.left='50%'")
+
+        # 7. Chef card
+        await cap("Show staff an <b>allergy chef card</b>, in six languages", line=9)
         await c.js(TOP, wait=0.6)
         await click("button", "CHEF CARD", 1.2)
         # The card opens in a dialog that covers the page, so the caption moves onto the dialog.
@@ -268,7 +284,7 @@ async def main():
                 await c.call("Input.dispatchMouseEvent", type=t, x=box[0], y=box[1], button="left", clickCount=1)
         await asyncio.sleep(0.5)
 
-        # 7. End card (about 4 s)
+        # 8. End card (about 4 s)
         while time.monotonic() < voice_end[0]:
             await asyncio.sleep(0.05)
         await cap("")
@@ -276,8 +292,8 @@ async def main():
             "<div class='b'>go <i>nuts</i></div><p>Eat out with a nut allergy, without the guesswork.</p>"+
             "<p style='font-size:19px'>Go Nuts never calls food \\"safe\\". Always tell your server and carry epinephrine.</p>";
             document.body.appendChild(e);requestAnimationFrame(()=>e.style.opacity=1);return true})()""", wait=0.3)
-        await speak(9)
-        await asyncio.sleep(lengths[9] + 0.8)
+        await speak(10)
+        await asyncio.sleep(lengths[10] + 0.8)
         rec.on = False
         await task
         start = rec.frames[0][0]
