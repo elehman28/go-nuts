@@ -20,7 +20,7 @@ always tell your server about your allergy.
 - **Browse:** see every restaurant already checked, ranked, for free.
 - **Check a menu:** paste a menu link (web page or PDF), upload a photo of a menu, paste the text,
   or try a sample menu.
-- **Ask:** chat with the Food Guide about what usually goes into a dish, or what to order at a
+- **Ask about a dish** (floating button, bottom right of every page): chat with the Food Guide about what usually goes into a dish, or what to order at a
   restaurant Go Nuts has checked. Answers are checked against the saved menus.
 - **Community:** rate how well a restaurant handled your allergy, post photos of your food, and warn
   others about hidden nuts. Warnings make future menu checks more cautious for everyone.

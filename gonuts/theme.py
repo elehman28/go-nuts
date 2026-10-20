@@ -58,8 +58,8 @@ def icon(nut: str, mono: str | None = None) -> str:
 
 
 # The app's tabs, in order, and the nut drawn on each.
-TABS = ["Find restaurants", "Map", "Check a menu", "Ask", "Community", "How it works"]
-TAB_NUTS = ["peanut", "cashew", "almond", "pistachio", "hazelnut", "walnut"]
+TABS = ["Find restaurants", "Map", "Check a menu", "Community", "How it works"]
+TAB_NUTS = ["peanut", "cashew", "almond", "hazelnut", "walnut"]
 
 _TAB_ICONS = "\n".join(
     f""".stTabs [role="tab"]:nth-of-type({i}) [data-testid="stMarkdownContainer"] p::before {{
@@ -179,6 +179,17 @@ a {{ color: var(--accent); }}
   vertical-align: -0.28em; background-size: contain; background-repeat: no-repeat; }}
 {_TAB_ICONS}
 {_RUNNING_ICON}
+/* Food Guide chat: a floating button at the bottom right of every page; its panel opens above it. */
+.st-key-gn_chat_fab {{ position: fixed; right: 24px; bottom: 22px; z-index: 999; width: auto !important; }}
+.st-key-gn_chat_fab [data-testid="stPopover"] button {{
+  background: var(--accent); color: #fff; border: none; border-radius: 999px; padding: 0.7rem 1.25rem;
+  box-shadow: 0 6px 22px rgba(43,34,28,.28); letter-spacing: 1.5px; }}
+.st-key-gn_chat_fab [data-testid="stPopover"] button:hover {{ background: {ACCENT_DARK}; color: #fff; }}
+.st-key-gn_chat_fab [data-testid="stPopover"] button p {{ color: #fff; }}
+/* column-reverse keeps the panel scrolled to the newest message and the question box, like a chat app */
+[data-testid="stPopoverBody"]:has(.st-key-gn_chat_body) {{ width: min(420px, 92vw); max-height: 72vh; overflow-y: auto;
+  display: flex; flex-direction: column-reverse; }}
+@media (max-width: 640px) {{ .st-key-gn_chat_fab {{ right: 12px; bottom: 12px; }} }}
 .stTabs [data-baseweb="tab-panel"] {{ padding-top: 2rem; }}
 
 /* Buttons: crisp, square-ish, spaced uppercase */

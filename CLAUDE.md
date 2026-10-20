@@ -139,7 +139,7 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
 - Demo video: report/go-nuts-demo.mp4 (57 s, voice Allison (Enhanced), made with `python report/demo_video.py OUT`
   + ffmpeg, 0 tokens). Olmo Bagels: the map entry 'the-bagelry' (93 Whitney) was renamed by hand; its menu is
   on Toast (blocked), and a scan's OpenStreetMap update may rename it back. Uber Eats / DoorDash: not used (terms).
-- Food Guide chat (Ask tab, gonuts/agents/guide.py): plain code finds named restaurants (typo-tolerant) and real
+- Food Guide chat (floating "Ask about a dish" button, bottom right of every page; app.food_guide_chat, gonuts/agents/guide.py): plain code finds named restaurants (typo-tolerant) and real
   dish counts, one gpt-6-luna call answers, Verifier.check_answer checks dishes against the saved menu, rewords
   "safe", and puts emergency steps first when someone already ate / has symptoms. 25 questions per session.
   Real test: ~1.7K tokens, ~$0.0003, ~7 s per question.
