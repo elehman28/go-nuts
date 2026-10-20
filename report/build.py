@@ -325,7 +325,7 @@ ${img_costs}
 trace_cost = 0.0  # computed from the traced run's logged tokens
 max_cost = S["analysis_tokens_max"]
 report = REPORT.safe_substitute(
-    font_css=FONT_CSS, diagram=DIAGRAM, tests=82,
+    font_css=FONT_CSS, diagram=DIAGRAM, tests=83,
     trace_cost=money((1703 - 1564) * 0.10 / 1e6 + 1564 * 0.01 / 1e6 + 586 * 0.50 / 1e6 + 1127 * 0.10 / 1e6 + 223 * 0.50 / 1e6, 5),
     max_cost=money(S["analysis_tokens_max"] * 0.35 / 1e6, 3),
     scan_used="720K",
@@ -430,7 +430,7 @@ svg{max-height:480px}
 <script>Reveal.initialize({hash:true,width:1280,height:720,margin:0.06,transition:'fade',controls:true,progress:true});</script>
 </body></html>""")
 slides = SLIDES.safe_substitute(
-    reveal_css=reveal_css, reveal_js=reveal_js, font_css=FONT_CSS, diagram=DIAGRAM, tests=82,
+    reveal_css=reveal_css, reveal_js=reveal_js, font_css=FONT_CSS, diagram=DIAGRAM, tests=83,
     trace=b64(HERE / "img" / "08_agent_trace.png"), injection=b64(HERE / "img" / "06_injection_blocked.png"),
     card=b64(HERE / "img" / "04_restaurant_card.png"), map=b64(HERE / "img" / "05_map.png"),
     chef=b64(HERE / "img" / "11_chef_card_ar.png"), **V)

@@ -14,12 +14,12 @@ def test_phone_and_address_come_from_openstreetmap_tags_only():
 
 def test_phone_from_the_restaurants_own_website():
     html = "<a href='/menu'>Menu</a><a href='tel:2037776736'>Call us</a>"
-    assert web.find_phone(html) == "2037776736"
+    assert web.find_phone(html) == "+1-203-777-6736"
     assert web.find_phone("<a href='tel:911'>x</a>") is None
     # a placeholder number left in a website template (seen on a real New Haven site) is dropped
     assert web.find_phone("<a href='tel:+6567025018'>x</a>") is None
-    assert web.us_phone("+1 (203) 624-0507") == "+1 (203) 624-0507"
-    assert web.us_phone("203.777.6736") == "203.777.6736"
+    assert web.us_phone("+1 (203) 624-0507") == "+1-203-624-0507"   # one format everywhere
+    assert web.us_phone("203.777.6736") == "+1-203-777-6736"
     assert web.us_phone("(123) 456-7890") is None  # US area codes never start with 0 or 1
 
 
@@ -130,7 +130,15 @@ def test_new_phone_never_overwrites_a_stored_one(tmp_path):
     key = db.upsert_restaurant({"name": "Zinc", "phone": "+1 203 624 0507"})
     db.set_phone(key, "203 999 0000")
     db.upsert_restaurant({"name": "Zinc"})  # a later search without a phone keeps the stored one
-    assert db.restaurant(key)["phone"] == "+1 203 624 0507"
+    assert db.restaurant(key)["phone"] == "+1-203-624-0507"
+
+
+def test_stored_phones_are_rewritten_in_one_format(tmp_path):
+    db = DB(tmp_path / "t.db")
+    key = db.upsert_restaurant({"name": "Zinc"})
+    db.conn.execute("UPDATE restaurants SET phone='203.848.3000' WHERE key=?", (key,))  # an older row
+    db.format_phones()
+    assert db.restaurant(key)["phone"] == "+1-203-848-3000"
 
 
 def test_old_database_without_phone_column_is_upgraded(tmp_path):

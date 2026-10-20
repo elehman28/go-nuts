@@ -8,6 +8,11 @@ from pathlib import Path
 
 from . import config
 
+
+def _phone(raw: str | None) -> str | None:
+    from .web import us_phone  # imported here: web pulls in requests, PDF and image libraries
+    return us_phone(raw)
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS restaurants (
     key TEXT PRIMARY KEY,           -- normalized name, used to link reviews and analyses
@@ -167,6 +172,14 @@ class DB:
             self.conn.commit()
         finally:
             self.conn.execute("DETACH DATABASE seed")
+        self.format_phones()
+
+    def format_phones(self):
+        """Rewrite stored phone numbers in one format (+1-203-287-9286); older rows kept the source's."""
+        for row in self.conn.execute("SELECT key, phone FROM restaurants WHERE phone IS NOT NULL AND phone != ''").fetchall():
+            if _phone(row["phone"]) != row["phone"]:
+                self.conn.execute("UPDATE restaurants SET phone=? WHERE key=?", (_phone(row["phone"]), row["key"]))
+        self.conn.commit()
 
     def _rows(self, sql, args=()):
         return [dict(r) for r in self.conn.execute(sql, args).fetchall()]
@@ -185,7 +198,7 @@ class DB:
                  city=COALESCE(excluded.city, city), updated=excluded.updated,
                  phone=COALESCE(excluded.phone, phone)""",
             (key, r["name"], r.get("cuisine"), r.get("address"), r.get("website"), r.get("menu_url"),
-             r.get("lat"), r.get("lon"), r.get("city"), now(), r.get("phone")))
+             r.get("lat"), r.get("lon"), r.get("city"), now(), _phone(r.get("phone"))))
         self.conn.commit()
         return key
 
@@ -197,7 +210,8 @@ class DB:
 
     def set_phone(self, key: str, phone: str):
         """Fill in a phone number only where none is stored yet."""
-        self.conn.execute("UPDATE restaurants SET phone=? WHERE key=? AND (phone IS NULL OR phone='')", (phone, key))
+        self.conn.execute("UPDATE restaurants SET phone=? WHERE key=? AND (phone IS NULL OR phone='')",
+                          (_phone(phone), key))
         self.conn.commit()
 
     def restaurant(self, key: str) -> dict | None:

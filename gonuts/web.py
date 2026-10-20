@@ -145,7 +145,7 @@ def _page_text(resp: requests.Response) -> str:
 
 
 def us_phone(raw: str | None) -> str | None:
-    """The number as written if it is a valid US number, else None. Website templates sometimes
+    """A valid US number in one format, +1-203-287-9286, else None. Website templates sometimes
     ship placeholder numbers (one New Haven site linked to a Singapore number), so anything that
     isn't a US number is dropped rather than shown."""
     if not raw:
@@ -158,7 +158,7 @@ def us_phone(raw: str | None) -> str | None:
         digits = digits[1:]
     if len(digits) != 10 or digits[0] in "01" or digits[3] in "01":
         return None
-    return raw
+    return f"+1-{digits[:3]}-{digits[3:6]}-{digits[6:]}"
 
 
 def find_phone(html: str) -> str | None:
