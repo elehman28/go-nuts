@@ -54,7 +54,7 @@ should would will i im i'm me my we our you your it its it's this that these tho
 how why when where any some much many more most just ate eat eaten had have has get got order ordering
 usually typically normally often nuts nut peanut peanuts tree allergy allergic safe free contain contains
 containing dish dishes food meal menu restaurant place good best like tell know think there's whats
-anything something about into goes go""".split())
+anything something about into goes go made make ok okay use used put try want need fine""".split())
 
 
 def _words(text: str) -> list[str]:
@@ -79,16 +79,28 @@ def find_restaurants(text: str, restaurants: list[dict], limit: int = 2) -> list
     return [r for _, _, r in found[:limit]]
 
 
+_NUT_WORDS = {"nut", "nuts", "peanut", "peanuts", "almond", "almonds", "cashew", "cashews", "walnut", "walnuts",
+              "pecan", "pecans", "pistachio", "pistachios", "hazelnut", "hazelnuts", "macadamia", "pine"}
+
+
 def dish_phrases(text: str) -> list[str]:
-    """Candidate dish names in a question: 3-, 2- and 1-word phrases without filler words."""
-    words = [w for w in _words(text)]
-    out = []
+    """Candidate dish names in a question: 3-, 2- and 1-word phrases without filler words. Nut words
+    may be part of a dish name ("peanut butter", "almond croissant"); then the other word on its own
+    ("butter") is not used, because it would count unrelated dishes."""
+    words = _words(text)
+    out, inside_nut_phrase = [], set()
     for n in (3, 2, 1):
         for i in range(len(words) - n + 1):
             chunk = words[i:i + n]
+            if n > 1 and any(w in _NUT_WORDS for w in chunk) and not all(w in _NUT_WORDS for w in chunk):
+                if any(w in _STOP - _NUT_WORDS for w in chunk):
+                    continue
+                out.append(" ".join(chunk))
+                inside_nut_phrase |= {w for w in chunk if w not in _NUT_WORDS}
+                continue
             if chunk[0] in _STOP or chunk[-1] in _STOP or any(w in _STOP for w in chunk):
                 continue
-            if n == 1 and len(chunk[0]) < 4:
+            if n == 1 and (len(chunk[0]) < 4 or chunk[0] in inside_nut_phrase):
                 continue
             out.append(" ".join(chunk))
     return out

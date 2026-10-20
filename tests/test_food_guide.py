@@ -28,6 +28,8 @@ def test_restaurant_names_match_with_typos():
     assert [r["key"] for r in find_restaurants("what's good at septemeber in bangkok?", known)] == ["s"]
     assert find_restaurants("is pad thai usually made with peanuts", known) == []
     assert "pad thai" in dish_phrases("I just ate pad thai, are there typically nuts in that?")
+    phrases = dish_phrases("does peanut butter have nuts in it")
+    assert "peanut butter" in phrases and "butter" not in phrases   # not every butter dish
 
 
 def test_answer_uses_the_saved_menu_and_cites_only_real_dishes(make_team):
