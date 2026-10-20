@@ -1,0 +1,13 @@
+[theme]
+# Nut palette: walnut accent, warm ivory pages, almond-cream sections, dark-roast text.
+primaryColor = "#7a4b25"
+backgroundColor = "#fffdf9"
+secondaryBackgroundColor = "#f4ede2"
+textColor = "#2b221c"
+
+[server]
+enableStaticServing = true   # serves ./static (the bundled fonts) at /app/static
+maxUploadSize = 5   # MB; matches MAX_PHOTO_BYTES in gonuts/config.py
+
+[client]
+toolbarMode = "minimal"
