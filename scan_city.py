@@ -93,11 +93,14 @@ def import_websites(db: DB, paths: list[str]):
                 words = [w for w in re.findall(r"[a-z0-9']+", r["name"].lower()) if w not in _GENERIC and len(w) > 2]
                 street = re.sub(r"^[\d–;-]+\s+", "", (r.get("address") or "").split(",")[0]).lower()
                 name_ok = any(w in page or w in host for w in words) if words else r["name"].lower() in page
-                place_ok = "new haven" in page or (street and street.split()[0] in page) or re.search(r"\b065\d\d\b", page)
+                towns = ("new haven", "east haven", "west haven", "north haven", "hamden", "woodbridge", "orange",
+                         "branford")
+                place_ok = any(t in page for t in towns) or (street and street.split()[0] in page) \
+                    or re.search(r"\b06[45]\d\d\b", page)
                 if not name_ok:
                     why = "the page doesn't show the restaurant's name"
                 elif not place_ok:
-                    why = "the page doesn't show a New Haven location"
+                    why = "the page doesn't show a New Haven-area location"
             if why:
                 rejected += 1
                 print(f"  ✗ {r['name']:<34} {url[:60]:<60} {why}")
@@ -118,7 +121,7 @@ def fill_addresses(db: DB):
     # Missing, or only a street name from the map: try again (the restaurant's website first).
     todo = [r for r in db.restaurants() if r.get("lat") is not None and (not (r.get("address") or "").strip()
             or (r.get("address_source") == "map" and not re.match(r"^\d", r.get("address") or "")))]
-    print(f"{len(todo)} restaurants on the map have no address.\n")
+    print(f"{len(todo)} restaurants on the map have no address or only a street name.\n")
     counts = {"website": 0, "map": 0, "none": 0}
     for r in todo:
         address, source = None, None
@@ -150,7 +153,9 @@ def fill_addresses(db: DB):
     if vague:
         print(f"\n{len(vague)} addresses have a street but no house number. Looking up nearby numbered addresses...")
         try:
-            numbered = osm.numbered_addresses(*config.DEFAULT_CENTER)
+            # Cover the farthest street-only restaurant (plus a margin), up to 12.5 km out.
+            far_km = max(osm.distance_km(*config.DEFAULT_CENTER, r["lat"], r["lon"]) for r in vague)
+            numbered = osm.numbered_addresses(*config.DEFAULT_CENTER, radius_m=min(int(far_km * 1000) + 500, 12500))
         except osm.PlacesError as e:
             print(f"  Couldn't load numbered addresses: {e}")
             return

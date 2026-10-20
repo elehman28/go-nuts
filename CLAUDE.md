@@ -118,37 +118,26 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
   third-party trackers; verify against OpenAI or the Portkey dashboard.
 - Not yet on GitHub and not yet deployed.
 
-## Where we left off (Oct 20, late night) — start here tomorrow
-- Saved: everything is committed locally (git, no remote). `.env`, data/ and logs/ are not in git
-  (gitignored); they stay on this laptop. NOT on GitHub yet: the student said don't set it up yet.
-- Goal in progress: at least 100 checked menus (was 44). The student approved ~800K tokens in two
-  runs capped at 400K each (rule 6). Run 1 (`scan_city.py --radius 8 --max 200 --budget 400000`)
-  finished: 23 new menus, 67 checked (153,477 in / 145,614 out tokens, $0.0844). Run 2 (same
-  command; scans now use websites saved by --import-websites) checked 6 of the 7 found websites
-  (Menya Gumi, Somos, Geronimo, Junzi Kitchen, Sally's Apizza, Zeneli): 73 checked, ~89K tokens.
-  Approved budget used: ~388K of ~800K, so ~410K remains (ask before going beyond it). Each result is saved as it
-  finishes, so nothing is lost if it stopped. Check the count, then do run 2:
-  `python scan_city.py --radius 8 --max 200 --budget 400000`. Scans skip sites that failed in the
-  last 14 days (table scan_failures; `--retry-failed` to override). Tokens used Oct 20: ~613K+.
-- Website search for restaurants with no website in OpenStreetMap: 4 sub-agents found 14; the code
-  check (`scan_city.py --import-websites ...json`) kept 7 (Junzi, Menya Gumi, Zeneli, Somos, Pasta
-  EATaliana, Sally's Apizza, Geronimo) and rejected 7 whose pages showed no New Haven location.
-  Web search was rate-limited: many restaurants were never searched. To reach 100, retry the
-  website search slowly (one agent, sequential, nulls marked "not searched"), import, then scan
-  again (27 more menus needed).
-- Every mapped restaurant must have an address (student's rule). An `--addresses` pass was started
-  for the restaurants run 1 added (8 km). Re-run `python scan_city.py --addresses` to finish; it
-  prefers the restaurant's own website, then OpenStreetMap (labeled approximate).
-  Done Oct 20 late: all 362 mapped restaurants have an address, but 50 (mostly 3.5-8 km out) are
-  street-only because osm.numbered_addresses() is called with its default 3,500 m radius. Fix:
-  call it with ~8,500 m in scan_city.fill_addresses, then re-run `--addresses`.
-- Copy new seed results into the live app: restart the app (it imports seed/new_haven.db).
-- Ideas the student liked but not built: Menu Watcher agent (re-check changed menus only),
-  Accuracy Auditor (accuracy vs. menus the student labels by hand), call script by the Call button,
-  cuisine / open-now filters.
-- Still to do for the course (due Mon Oct 26, 6 PM): GitHub + Streamlit Cloud deploy (ask the
-  professor about the course key behind a public link), fresh-clone test with .env one folder up,
-  real user trials via the feedback form, report.html, slides.html.
+## Where we left off (Oct 21) — start here next time
+- Committed locally (git, no remote). NOT on GitHub yet: the student said don't set it up yet.
+- Coverage: 81 menus checked (goal was 100), 5,172 dishes, 380 restaurants mapped within 12 km, every
+  one with an address (25 street-only where the map has no house number nearby). Run 3
+  (`scan_city.py --radius 12 --max 400 --budget 400000`) added 8 menus for 166K tokens ($0.052);
+  10 failed. Approved budget used: ~555K of ~800K (~245K left; ask before going beyond it).
+  The bottleneck is websites, not tokens: 196 of 500 restaurants have no website in OpenStreetMap
+  and most others failed (no menu text, or site down). A 16 km dry run failed: Overpass was busy.
+  Options to reach 100: another slow website search + `--import-websites`, or a wider radius.
+- Report + slides: `python report/build.py` writes report/report.html (15 printed pages) and
+  report/slides.html (10 slides, reveal.js embedded). Every number comes from report/stats.py
+  (seed DB + logs/usage.jsonl), so rebuild after any scan. Placeholders to fill before submitting:
+  [LINK TO ADD] (app + GitHub), [TO FILL] real user trial and before/after time (never invent).
+  The per-user cost uses one labeled assumption (8 lookups/month). Screenshots: report/img
+  (retake with the CDP script in the session scratchpad if the UI changes). Research: report/research-notes.md.
+- Ideas the student liked but not built: Menu Watcher, Accuracy Auditor, call script, cuisine /
+  open-now filters, international travel.
+- Still to do (due Mon Oct 26, 6 PM): GitHub + Streamlit Cloud deploy (ask the professor about the
+  course key behind a public link), fresh-clone test with .env one folder up, real user trials via
+  the feedback form, then fill the report placeholders and rebuild.
 
 ## Commands
 ```
