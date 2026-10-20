@@ -320,7 +320,7 @@ report = REPORT.safe_substitute(
     font_css=FONT_CSS, diagram=DIAGRAM, tests=82,
     trace_cost=money((1703 - 1564) * 0.10 / 1e6 + 1564 * 0.01 / 1e6 + 586 * 0.50 / 1e6 + 1127 * 0.10 / 1e6 + 223 * 0.50 / 1e6, 5),
     max_cost=money(S["analysis_tokens_max"] * 0.35 / 1e6, 3),
-    scan_used="555K",
+    scan_used="720K",
     img_card=img("04_restaurant_card", "A restaurant opened from search: address, call button, AI summary (labeled), score."),
     img_dishes=img("04c_dishes", "Dish by dish: each rating with the menu's own words."),
     img_progress=img("06a_live_progress", "During the run: live, plain-English progress (here: removing hidden instructions)."),

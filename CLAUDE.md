@@ -120,13 +120,14 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
 
 ## Where we left off (Oct 21) — start here next time
 - Committed locally (git, no remote). NOT on GitHub yet: the student said don't set it up yet.
-- Coverage: 81 menus checked (goal was 100), 5,172 dishes, 380 restaurants mapped within 12 km, every
-  one with an address (25 street-only where the map has no house number nearby). Run 3
-  (`scan_city.py --radius 12 --max 400 --budget 400000`) added 8 menus for 166K tokens ($0.052);
-  10 failed. Approved budget used: ~555K of ~800K (~245K left; ask before going beyond it).
-  The bottleneck is websites, not tokens: 196 of 500 restaurants have no website in OpenStreetMap
-  and most others failed (no menu text, or site down). A 16 km dry run failed: Overpass was busy.
-  Options to reach 100: another slow website search + `--import-websites`, or a wider radius.
+- Coverage: 89 menus checked (goal was 100), 5,940 dishes, 380 restaurants mapped within 12 km, every
+  one with an address (25 street-only where the map has no house number nearby). Oct 21: run 3
+  (+8 menus, 166K tokens), then a slow website search of all 134 restaurants with no website
+  (two sequential sub-agents, no rate limits): 23 found, 15 passed the page check (one sister-shop
+  site removed by hand), 8 more menus checked (runs 4-5, ~162K tokens). Approved budget used:
+  ~720K of ~800K; ask before more. Every restaurant without a website has now been searched once
+  (results in the session scratchpad found_c1/c2.json, not kept). Remaining gap is sites with no
+  readable menu; diners can add menus by photo.
 - Report + slides: `python report/build.py` writes report/report.html (15 printed pages) and
   report/slides.html (10 slides, reveal.js embedded). Every number comes from report/stats.py
   (seed DB + logs/usage.jsonl), so rebuild after any scan. Placeholders to fill before submitting:
