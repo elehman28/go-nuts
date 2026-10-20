@@ -116,10 +116,10 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
   "partial menu" (places.partial_reason): purple on the map, listed last in Browse, never green.
 - Prices in gonuts/config.py ($0.10 input / $0.01 cached / $0.50 output per 1M) come from
   third-party trackers; verify against OpenAI or the Portkey dashboard.
-- Not yet on GitHub and not yet deployed.
+- On GitHub (elehman28/go-nuts); not yet deployed.
 
 ## Where we left off (Oct 21) — start here next time
-- Committed locally (git, no remote). NOT on GitHub yet: the student said don't set it up yet.
+- Committed locally (git, no remote). Public on GitHub: https://github.com/elehman28/go-nuts (pushed Oct 21). To change the report or slides: edit report/build.py, run `python report/build.py`, commit, `git push`.
 - Coverage: 89 menus checked (goal was 100), 5,940 dishes, 380 restaurants mapped within 12 km, every
   one with an address (25 street-only where the map has no house number nearby). Oct 21: run 3
   (+8 menus, 166K tokens), then a slow website search of all 134 restaurants with no website
