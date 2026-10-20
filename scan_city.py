@@ -227,6 +227,9 @@ def main():
     team.start_run()
     found = team.send("user", "finder", "find_restaurants",
                       {"location": args.location, "radius_km": args.radius, "limit": 500})
+    for r in found["restaurants"]:  # websites found by search (--import-websites) live in our database
+        stored = db.restaurant(r["key"]) or {}
+        r["website"] = r.get("website") or stored.get("website")
     with_site, skipped = pick_restaurants(found["restaurants"], args.include_chains)
     if args.only_chains:
         one_each = {}

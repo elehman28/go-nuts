@@ -123,15 +123,19 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
   (gitignored); they stay on this laptop. NOT on GitHub yet: the student said don't set it up yet.
 - Goal in progress: at least 100 checked menus (was 44). The student approved ~800K tokens in two
   runs capped at 400K each (rule 6). Run 1 (`scan_city.py --radius 8 --max 200 --budget 400000`)
-  was running at the end of the session: 49 checked at last look. Each result is saved as it
+  finished: 23 new menus, 67 checked (153,477 in / 145,614 out tokens, $0.0844). Run 2 (same
+  command; scans now use websites saved by --import-websites) was running at the end of the
+  session for the 7 newly found websites. ~840K tokens used Oct 20 of the 2M daily cap. Each result is saved as it
   finishes, so nothing is lost if it stopped. Check the count, then do run 2:
   `python scan_city.py --radius 8 --max 200 --budget 400000`. Scans skip sites that failed in the
   last 14 days (table scan_failures; `--retry-failed` to override). Tokens used Oct 20: ~613K+.
 - Website search for restaurants with no website in OpenStreetMap: 4 sub-agents found 14; the code
   check (`scan_city.py --import-websites ...json`) kept 7 (Junzi, Menya Gumi, Zeneli, Somos, Pasta
   EATaliana, Sally's Apizza, Geronimo) and rejected 7 whose pages showed no New Haven location.
-  Web search was rate-limited: many restaurants were never searched. Retry slowly (one agent,
-  sequential) if run 2 doesn't reach 100.
+  Web search was rate-limited: many restaurants were never searched. To reach 100, retry the
+  website search slowly (one agent, sequential, nulls marked "not searched"), import, then scan
+  again. Remaining budget of the approved ~800K: about 100K after run 1 + run 2; ask the student
+  before going beyond it (rule 6).
 - Every mapped restaurant must have an address (student's rule). An `--addresses` pass was started
   for the restaurants run 1 added (8 km). Re-run `python scan_city.py --addresses` to finish; it
   prefers the restaurant's own website, then OpenStreetMap (labeled approximate).
