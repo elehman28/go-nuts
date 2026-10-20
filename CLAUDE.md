@@ -135,6 +135,9 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
 - Every mapped restaurant must have an address (student's rule). An `--addresses` pass was started
   for the restaurants run 1 added (8 km). Re-run `python scan_city.py --addresses` to finish; it
   prefers the restaurant's own website, then OpenStreetMap (labeled approximate).
+  Done Oct 20 late: all 362 mapped restaurants have an address, but 50 (mostly 3.5-8 km out) are
+  street-only because osm.numbered_addresses() is called with its default 3,500 m radius. Fix:
+  call it with ~8,500 m in scan_city.fill_addresses, then re-run `--addresses`.
 - Copy new seed results into the live app: restart the app (it imports seed/new_haven.db).
 - Ideas the student liked but not built: Menu Watcher agent (re-check changed menus only),
   Accuracy Auditor (accuracy vs. menus the student labels by hand), call script by the Call button,
