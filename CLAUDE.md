@@ -116,7 +116,7 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
   "partial menu" (places.partial_reason): purple on the map, listed last in Browse, never green.
 - Prices in gonuts/config.py ($0.10 input / $0.01 cached / $0.50 output per 1M) come from
   third-party trackers; verify against OpenAI or the Portkey dashboard.
-- On GitHub (elehman28/go-nuts); not yet deployed.
+- On GitHub (elehman28/go-nuts); live at https://go-nuts-mepgzkf6appmyn8z3rqm8ts.streamlit.app/ (Streamlit Cloud, key in its Secrets).
 
 ## Where we left off (Oct 21) — start here next time
 - Committed locally (git, no remote). Public on GitHub: https://github.com/elehman28/go-nuts (pushed Oct 21). To change the report or slides: edit report/build.py, run `python report/build.py`, commit, `git push`.

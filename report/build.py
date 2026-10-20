@@ -20,7 +20,7 @@ S = collect()
 
 AUTHOR = "Elise Lehman"
 COURSE = "MGT 409 · AI Foundations for Managers · Yale SOM · Fall 2026"
-APP_LINK = "[LINK TO ADD: live app on Streamlit Community Cloud]"
+APP_LINK = "<a href='https://go-nuts-mepgzkf6appmyn8z3rqm8ts.streamlit.app/'>go-nuts-mepgzkf6appmyn8z3rqm8ts.streamlit.app</a>"
 REPO_LINK = "<a href='https://github.com/elehman28/go-nuts'>github.com/elehman28/go-nuts</a>"
 
 
