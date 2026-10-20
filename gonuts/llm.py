@@ -91,7 +91,9 @@ class LLM:
             from portkey_ai import Portkey
             key = config.get_portkey_key()
             if not key:
-                raise MissingKey("PORTKEY_API_KEY not found. Put it in a .env file in this folder or the folder above it.")
+                raise MissingKey("The AI part of Go Nuts isn't connected right now (no PORTKEY_API_KEY), so this question "
+                                 "couldn't be answered. Restaurants already checked still work. Site owner: add the key "
+                                 "to a .env file, or on Streamlit Community Cloud under Settings > Secrets.")
             self._client = Portkey(api_key=key)
         return self._client
 
@@ -115,8 +117,9 @@ class LLM:
             kwargs["reasoning_effort"] = "none"
         elif agent in config.REASONING_EFFORT:
             kwargs["reasoning_effort"] = config.REASONING_EFFORT[agent]
+        client = self.client()  # a missing key is reported as itself, not as a model error
         try:
-            resp = self.client().chat.completions.create(**kwargs)
+            resp = client.chat.completions.create(**kwargs)
         except Exception as e:
             kind = type(e).__name__
             if "Timeout" in kind:
