@@ -282,8 +282,16 @@ ${img_costs}
 <li><b>Speed:</b> a fresh menu check takes ${run_secs} s of model time (median); a restaurant someone has already checked is instant.</li>
 <li><b>Allergy chef card</b> in English, Spanish, French, Portuguese, Chinese and Arabic, made from the diner's profile, a first step toward international travel. Interviews with adults with peanut and tree-nut allergies found foreign travel especially hard, with translated allergy cards a common coping strategy [12].</li>
 </ul>
-<div class="todo"><b>[TO FILL] Real user trial.</b> Ask one or two people with a nut allergy to use Go Nuts before a real meal and complete the in-app feedback form (Community tab). Then paste here: (1) an anonymous quote, (2) minutes to check a menu with and without Go Nuts (How it works &rarr; Feedback shows the median), (3) a screenshot of the Feedback summary. No user results are reported here yet; none have been invented.</div>
-<div class="todo"><b>[TO FILL] Before/after time.</b> Time yourself checking one restaurant's menu by hand, then with Go Nuts, and record both numbers here.</div>
+<h3>First users</h3>
+<p>Three people with nut allergies tried Go Nuts in October 2026: me, through the in-app feedback form, and two testers whose answers I collected directly. All three are anonymous here. Each estimated how long it takes to check one restaurant's menu for nuts.</p>
+<table><tr><th>User</th><th class="num">Minutes without Go Nuts</th><th class="num">Minutes with Go Nuts</th><th>Source</th></tr>
+<tr><td>The author (nut allergy)</td><td class="num">20</td><td class="num">5</td><td>In-app feedback form (rated it 5 of 5 helpful; would use it)</td></tr>
+<tr><td>Tester 1 (nut allergy, eats out in New Haven)</td><td class="num">about 8</td><td class="num">2</td><td>Told to the author</td></tr>
+<tr><td>Tester 2 (nut allergy, planning a visit to New Haven)</td><td class="num">13</td><td class="num">1</td><td>Told to the author</td></tr>
+<tr><td><b>Median</b></td><td class="num"><b>13</b></td><td class="num"><b>2</b></td><td>Time saved per menu: about 11 minutes</td></tr></table>
+<div class="callout"><i>"I love using Go Nuts before I go out to eat in New Haven! It makes navigating social situations with a nut allergy much easier."</i>, Tester 1</div>
+<div class="callout"><i>"I can't wait to visit my sister in New Haven and try some restaurants I found on Go Nuts! It makes me happy that the pizza restaurants score so high."</i>, Tester 2</div>
+<p class="meta">Limits: three users, self-reported time estimates, and two of the three answers were given to the author directly rather than through the form. This is early evidence, not a study.</p>
 <div class="grid2">${img_chef}${img_chef_ar}</div>
 <div class="grid2">${img_map}${img_phone}</div>
 
@@ -295,7 +303,7 @@ ${img_costs}
 <li><b>Data quality.</b> Some addresses are approximate (from the map location), and the chef card translations were written carefully but not by native speakers; the app says so.</li>
 <li><b>Hosting.</b> Reviews, photos and feedback live in the hosted app's database and reset if it restarts; the course key's daily token cap limits fresh checks per day.</li>
 </ul>
-<p><b>Next steps:</b> (1) real user trials with the feedback form; (2) an Accuracy Auditor that compares ratings with menus labeled by hand; (3) a Menu Watcher that re-checks only menus that changed; (4) more cities; (5) international travel, our family's real hope: menus in other languages and chef cards for any destination.</p>
+<p><b>Next steps:</b> (1) a larger user trial through the feedback form, with timed rather than estimated minutes; (2) an Accuracy Auditor that compares ratings with menus labeled by hand; (3) a Menu Watcher that re-checks only menus that changed; (4) more cities; (5) international travel, our family's real hope: menus in other languages and chef cards for any destination.</p>
 
 <h2>Sources</h2>
 <ol class="src">
@@ -411,10 +419,10 @@ svg{max-height:480px}
 <div class="stats"><div><div class="big">${contains}</div><span>dishes that contain nuts</span></div><div><div class="big">${likely}</div><span>likely contain nuts</span></div>
 <div><div class="big">${unclear}</div><span>unclear: ask staff</span></div></div>
 <p class="small">Hidden: Frangelico (hazelnut) in a Thai iced tea; almond-milk fried chicken; peanut in tom yum; two Domino's desserts made near nuts.</p>
-<div class="todo">[TO FILL] Real user trial: quote + minutes with and without Go Nuts (from the in-app feedback form)</div></section>
+<p class="small"><i>"It makes navigating social situations with a nut allergy much easier."</i>, a tester · 3 first users: median <b>13 min</b> to check a menu by hand vs <b>2 min</b> with Go Nuts</p></section>
 
 <section><div class="kicker">Next</div><h2>From New Haven to anywhere</h2>
-<div class="cols"><div><ul class="small"><li>Real user trials (feedback form is live)</li><li>Accuracy Auditor: ratings vs. hand-labeled menus</li>
+<div class="cols"><div><ul class="small"><li>Larger user trial (feedback form is live)</li><li>Accuracy Auditor: ratings vs. hand-labeled menus</li>
 <li>Menu Watcher: re-check only changed menus</li><li>International travel: chef cards in 6 languages today, menus abroad next</li></ul></div>
 <img class="shot" src="data:image/png;base64,${chef}"></div></section>
 
