@@ -67,6 +67,22 @@ _TAB_ICONS = "\n".join(
 .stTabs [role="tab"]:nth-of-type({i})[aria-selected="true"] [data-testid="stMarkdownContainer"] p::before {{
   background-image: {icon(nut, mono=ACCENT)}; }}""" for i, nut in enumerate(TAB_NUTS, start=1))
 
+# While the app is working, Streamlit's "Running..." figure (top corner) is replaced by a nut that
+# cycles through the six drawings, in color, with a gentle wobble.
+_RUNNING_NUTS = ["peanut", "almond", "cashew", "hazelnut", "walnut", "pistachio"]
+_RUNNING_STEPS = "\n".join(
+    f"  {round(100 * i / len(_RUNNING_NUTS), 2)}% {{ background-image: {icon(n)}; }}" for i, n in enumerate(_RUNNING_NUTS))
+_RUNNING_ICON = f"""[data-testid="stStatusWidgetRunningManIcon"], [data-testid="stStatusWidgetNewYearsIcon"] {{ display: none !important; }}
+[data-testid="stStatusWidgetRunningIcon"] {{
+  width: 1.6rem !important; height: 1.6rem !important; background: {icon(_RUNNING_NUTS[0])} center / contain no-repeat;
+  animation: gn-nut-cycle 3s steps(1, end) infinite, gn-nut-wobble 0.5s ease-in-out infinite alternate;
+}}
+@keyframes gn-nut-cycle {{
+{_RUNNING_STEPS}
+}}
+@keyframes gn-nut-wobble {{ from {{ transform: rotate(-14deg); }} to {{ transform: rotate(14deg); }} }}
+@media (prefers-reduced-motion: reduce) {{ [data-testid="stStatusWidgetRunningIcon"] {{ animation: gn-nut-cycle 3s steps(1, end) infinite; }} }}"""
+
 # Background: sparse line drawings of nuts in walnut brown, faint as a watermark.
 _BG_LAYOUT = [("peanut", 60, 70, -28, 1.1), ("almond", 300, 50, 32, 0.9), ("walnut", 200, 190, 8, 1.0),
               ("cashew", 380, 260, -40, 1.0), ("hazelnut", 70, 330, 0, 0.85), ("pistachio", 270, 370, 24, 0.9)]
@@ -162,6 +178,7 @@ a {{ color: var(--accent); }}
   content: ""; display: inline-block; width: 1.15em; height: 1.15em; margin-right: .5em;
   vertical-align: -0.28em; background-size: contain; background-repeat: no-repeat; }}
 {_TAB_ICONS}
+{_RUNNING_ICON}
 .stTabs [data-baseweb="tab-panel"] {{ padding-top: 2rem; }}
 
 /* Buttons: crisp, square-ish, spaced uppercase */
