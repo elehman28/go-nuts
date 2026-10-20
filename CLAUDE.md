@@ -134,6 +134,8 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
   [LINK TO ADD] (app + GitHub), [TO FILL] real user trial and before/after time (never invent).
   The per-user cost uses one labeled assumption (8 lookups/month). Screenshots: report/img
   (retake with `python report/shots.py report/img` while the app runs; needs Chrome + websockets). Research: report/research-notes.md.
+- First users (Oct 21): the student (feedback form, 20 -> 5 min) and two testers (8 -> 2, 13 -> 1 min,
+  relayed by the student). Both testers consented to anonymous quotes in the report and slides.
 - Ideas the student liked but not built: Menu Watcher, Accuracy Auditor, call script, cuisine /
   open-now filters, international travel.
 - Still to do (due Mon Oct 26, 6 PM): GitHub + Streamlit Cloud deploy (ask the professor about the
