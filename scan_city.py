@@ -153,9 +153,9 @@ def fill_addresses(db: DB):
     if vague:
         print(f"\n{len(vague)} addresses have a street but no house number. Looking up nearby numbered addresses...")
         try:
-            # Cover the farthest street-only restaurant (plus a margin), up to 12.5 km out.
+            # Cover the farthest street-only restaurant (plus a margin), up to 19 km out.
             far_km = max(osm.distance_km(*config.DEFAULT_CENTER, r["lat"], r["lon"]) for r in vague)
-            numbered = osm.numbered_addresses(*config.DEFAULT_CENTER, radius_m=min(int(far_km * 1000) + 500, 12500))
+            numbered = osm.numbered_addresses(*config.DEFAULT_CENTER, radius_m=min(int(far_km * 1000) + 500, 19000))
         except osm.PlacesError as e:
             print(f"  Couldn't load numbered addresses: {e}")
             return
@@ -231,7 +231,7 @@ def main():
     team = build_team(UsageTracker(budget=args.budget), db)
     team.start_run()
     found = team.send("user", "finder", "find_restaurants",
-                      {"location": args.location, "radius_km": args.radius, "limit": 500})
+                      {"location": args.location, "radius_km": args.radius, "limit": 1500})  # cap: nearest 1,500
     for r in found["restaurants"]:  # websites found by search (--import-websites) live in our database
         stored = db.restaurant(r["key"]) or {}
         r["website"] = r.get("website") or stored.get("website")

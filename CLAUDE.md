@@ -120,14 +120,12 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
 
 ## Where we left off (Oct 21) — start here next time
 - Committed locally (git, no remote). Public on GitHub: https://github.com/elehman28/go-nuts (pushed Oct 21). To change the report or slides: edit report/build.py, run `python report/build.py`, commit, `git push`.
-- Coverage: 89 menus checked (goal was 100), 5,940 dishes, 380 restaurants mapped within 12 km, every
-  one with an address (25 street-only where the map has no house number nearby). Oct 21: run 3
-  (+8 menus, 166K tokens), then a slow website search of all 134 restaurants with no website
-  (two sequential sub-agents, no rate limits): 23 found, 15 passed the page check (one sister-shop
-  site removed by hand), 8 more menus checked (runs 4-5, ~162K tokens). Approved budget used:
-  ~720K of ~800K; ask before more. Every restaurant without a website has now been searched once
-  (results in the session scratchpad found_c1/c2.json, not kept). Remaining gap is sites with no
-  readable menu; diners can add menus by photo.
+- Coverage (Oct 21): 107 menus checked, 7,407 dishes, 578 restaurants mapped within 18 km, every one with
+  an address (46 street-only where the map has no house number nearby). Runs: 3 (+8, 166K tokens),
+  website search of all 134 restaurants with no website (15 imported), 4-5 (+8, ~162K), 6 at 18 km
+  (`scan_city.py --radius 18 --max 600 --budget 250000`, +17 menus, 254K tokens, $0.075). About
+  975K tokens across all scans. scan_city now takes the nearest 1,500 restaurants (was 500).
+  Restaurants 12-18 km out without a website have not been searched yet.
 - Report + slides: `python report/build.py` writes report/report.html (15 printed pages) and
   report/slides.html (10 slides, reveal.js embedded). Every number comes from report/stats.py
   (seed DB + logs/usage.jsonl), so rebuild after any scan. Placeholders to fill before submitting:

@@ -10,6 +10,7 @@ Captions are added to the page during recording only; the app itself is unchange
 import asyncio
 import base64
 import json
+import sqlite3
 import subprocess
 import sys
 import time
@@ -25,12 +26,15 @@ CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 W, H = 1280, 720
 PORT = 9340
 VOICE, RATE = "Allison (Enhanced)", 185  # the student's pick (free Enhanced voice from System Settings)
+# Counts come from the database, so the video matches the app after every scan.
+_SEED = sqlite3.connect(Path(__file__).resolve().parent.parent / "seed" / "new_haven.db")
+MAPPED = _SEED.execute("SELECT COUNT(*) FROM restaurants WHERE lat IS NOT NULL").fetchone()[0]
 NARRATION = [
     "Tell Go Nuts what you're allergic to.",
     "Search any restaurant by name.",
     "See its nut-risk score, and call to ask with one tap.",
     "Every dish is rated from the real menu, quoting its own words.",
-    "The map shows three hundred eighty New Haven restaurants, colored by score.",
+    f"The map shows {MAPPED} New Haven-area restaurants, colored by score.",
     "Or check any menu. Paste it, link it, or snap a photo.",
     "Hidden instructions in a menu are blocked.",
     "Got a question? Ask the Food Guide, from any page.",
@@ -225,7 +229,7 @@ async def main():
         await rclick("summary", "Dish by dish")  # fold the long dish list away again
 
         # 4. Map
-        await cap("See <b>380 restaurants</b> on the map, colored by score", line=4)
+        await cap(f"See <b>{MAPPED} restaurants</b> on the map, colored by score", line=4)
         await c.js(TOP, wait=0.5)
         await tab("MAP")
         await c.js(IDLE, wait=1.2)

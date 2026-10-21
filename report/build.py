@@ -275,7 +275,7 @@ ${img_costs}
 <li><b>Honest labels:</b> AI-written text, AI inferences and official chain data are each tagged; diner photos and sample menus are labeled; approximate addresses say so. In one check, 9 map-based addresses were corrected by the restaurants' own websites, including one that was off by about 1,000 street numbers.</li>
 </ul>
 <h3>Overspending</h3>
-<ul><li>Session budget 150K tokens and app-wide daily budget 2M tokens (tested); a 90-second timeout per call; caps on every loop (pieces per menu, retries, menu links, photos, delegation hops). Large scans needed the student's approval in advance (about 800K tokens approved, about ${scan_used} used).</li></ul>
+<ul><li>Session budget 150K tokens and app-wide daily budget 2M tokens (tested); a 90-second timeout per call; caps on every loop (pieces per menu, retries, menu links, photos, delegation hops). City scans run only when the student asks, each capped by a token budget (largest 400K, never over the 600K that needs extra approval); about ${scan_used} tokens in total across all scans.</li></ul>
 <h3>Privacy</h3>
 <ul><li>No accounts. The allergy profile and saved list stay in a cookie on the diner's device, only if they tick "Remember". "Near me" rounds location to about 100 m and never stores it. Reviews and feedback reject emails, phone numbers, addresses and handles; community photos are screened by the model and rejected if a person or personal information is visible (fails closed); photo location data is stripped; menu photos are never stored. Feedback is anonymous and saved only with consent.</li></ul>
 
@@ -334,7 +334,7 @@ report = REPORT.safe_substitute(
     font_css=FONT_CSS, diagram=DIAGRAM, tests=90,
     trace_cost=money((1703 - 1564) * 0.10 / 1e6 + 1564 * 0.01 / 1e6 + 586 * 0.50 / 1e6 + 1127 * 0.10 / 1e6 + 223 * 0.50 / 1e6, 5),
     max_cost=money(S["analysis_tokens_max"] * 0.35 / 1e6, 3),
-    scan_used="720K",
+    scan_used="975K",
     img_card=img("04_restaurant_card", "A restaurant opened from search: address, call button, AI summary (labeled), score."),
     img_dishes=img("04c_dishes", "Dish by dish: each rating with the menu's own words."),
     img_progress=img("06a_live_progress", "During the run: live, plain-English progress (here: removing hidden instructions)."),

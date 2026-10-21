@@ -645,8 +645,9 @@ with tab_map:
         symbols = pdk.Layer("TextLayer", id="symbols", data=pts, get_position="[lon, lat]", get_text="symbol",
                             get_color=[255, 255, 255], get_size=12, font_weight=700,
                             get_text_anchor="'middle'", get_alignment_baseline="'center'", pickable=False)
-        view = pdk.ViewState(latitude=sum(p["lat"] for p in pts) / len(pts),
-                             longitude=sum(p["lon"] for p in pts) / len(pts), zoom=14)
+        # Centered on the median pin: where restaurants cluster (downtown), not the average of a wide area.
+        lats, lons = sorted(p["lat"] for p in pts), sorted(p["lon"] for p in pts)
+        view = pdk.ViewState(latitude=lats[len(lats) // 2], longitude=lons[len(lons) // 2], zoom=13.5)
         tooltip = {"html": "<b>{name}</b><br/>{cuisine}<br/>{address_text}<br/>{phone_text}<br/>{score_text}",
                    "style": {"backgroundColor": "#1f1a17", "color": "white", "borderRadius": "12px",
                              "padding": "10px 12px", "fontSize": "13px"}}
