@@ -55,7 +55,7 @@ any dish the Verifier couldn't find) → Cost Control (save) → Summarizer (ver
 You need Python 3.10 or newer.
 
 ```bash
-git clone <this repo's URL>
+git clone https://github.com/elehman28/go-nuts.git
 cd go-nuts
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
