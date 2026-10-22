@@ -7,6 +7,9 @@ hand, so rebuilding after a new scan updates the whole report. Gaps that need re
 are shown as yellow [TO FILL] boxes, never filled with made-up content (safety rule 2).
 """
 import base64
+import re
+import subprocess
+import sys
 import html
 from pathlib import Path
 from string import Template
@@ -17,6 +20,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 FONTS = ROOT / "static" / "fonts"
 S = collect()
+TESTS = int(re.search(r"(\d+) tests? collected", subprocess.run(
+    [sys.executable, "-m", "pytest", "--collect-only", "-q", str(ROOT / "tests")],
+    capture_output=True, text=True, cwd=ROOT).stdout).group(1))
 
 AUTHOR = "Elise Lehman"
 COURSE = "MGT 409 · AI Foundations for Managers · Yale SOM · Fall 2026"
@@ -331,7 +337,7 @@ ${img_costs}
 trace_cost = 0.0  # computed from the traced run's logged tokens
 max_cost = S["analysis_tokens_max"]
 report = REPORT.safe_substitute(
-    font_css=FONT_CSS, diagram=DIAGRAM, tests=90,
+    font_css=FONT_CSS, diagram=DIAGRAM, tests=TESTS,
     trace_cost=money((1703 - 1564) * 0.10 / 1e6 + 1564 * 0.01 / 1e6 + 586 * 0.50 / 1e6 + 1127 * 0.10 / 1e6 + 223 * 0.50 / 1e6, 5),
     max_cost=money(S["analysis_tokens_max"] * 0.35 / 1e6, 3),
     scan_used="975K",
@@ -350,11 +356,11 @@ report = REPORT.safe_substitute(
 (HERE / "report.html").write_text(report)
 
 # ---------------------------------------------------------------- slides (reveal.js, embedded)
-reveal_css = (HERE / "vendor" / "reveal.css").read_text()
-reveal_js = (HERE / "vendor" / "reveal.js").read_text()
+# The course requires reveal.js loaded from a CDN (screenshots and fonts stay embedded in the file).
+REVEAL = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist"
 SLIDES = Template("""<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Go Nuts</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>${reveal_css}</style>
+<link rel="stylesheet" href="${reveal}/reveal.css">
 <style>${font_css}
 :root{--r-background-color:#fffdf9;--r-main-font:'Libre Franklin',Arial,sans-serif;--r-main-color:#2b221c;
 --r-heading-font:'Old Standard TT',Georgia,serif;--r-heading-color:#3c2c20;--r-link-color:#7a4b25}
@@ -364,7 +370,7 @@ SLIDES = Template("""<!doctype html><html lang="en"><head><meta charset="utf-8">
 .reveal h1{font-size:2.6em} .reveal h2{font-size:1.6em;margin-bottom:.5em}
 .reveal .brand{font-family:var(--r-heading-font);color:#7a4b25;font-size:1.1em} .reveal .brand i{color:#a8743f}
 .reveal .kicker{font-size:.5em;letter-spacing:3px;text-transform:uppercase;color:#7d6e62}
-.reveal p,.reveal li{line-height:1.4} .reveal ul{margin-left:1em}
+.reveal p,.reveal li{line-height:1.4} .reveal ul{display:inline-block;text-align:left;margin-left:0;max-width:1080px}
 .reveal li{margin:.25em 0}
 .reveal img.shot{border:1px solid #e2d6c4;border-radius:4px;max-height:430px;margin:0}
 .big{font-family:'Old Standard TT',serif;font-size:2.2em;color:#7a4b25;line-height:1}
@@ -433,11 +439,11 @@ svg{max-height:480px}
 <li>Menu Watcher: re-check only changed menus</li><li>International travel: chef cards in 6 languages today, menus abroad next</li></ul></div>
 <img class="shot" src="data:image/png;base64,${chef}"></div></section>
 
-</div></div><script>${reveal_js}</script>
+</div></div><script src="${reveal}/reveal.js"></script>
 <script>Reveal.initialize({hash:true,width:1280,height:720,margin:0.06,transition:'fade',controls:true,progress:true});</script>
 </body></html>""")
 slides = SLIDES.safe_substitute(
-    reveal_css=reveal_css, reveal_js=reveal_js, font_css=FONT_CSS, diagram=DIAGRAM, tests=90,
+    reveal=REVEAL, font_css=FONT_CSS, diagram=DIAGRAM, tests=TESTS,
     trace=b64(HERE / "img" / "08_agent_trace.png"), injection=b64(HERE / "img" / "06_injection_blocked.png"),
     card=b64(HERE / "img" / "04_restaurant_card.png"), map=b64(HERE / "img" / "05_map.png"),
     chef=b64(HERE / "img" / "11_chef_card_ar.png"), **V)
