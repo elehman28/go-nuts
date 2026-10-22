@@ -180,7 +180,8 @@ a {{ color: var(--accent); }}
 {_TAB_ICONS}
 {_RUNNING_ICON}
 /* Food Guide chat: a floating button at the bottom right of every page; its panel opens above it. */
-.st-key-gn_chat_fab {{ position: fixed; right: 24px; bottom: 22px; z-index: 999; width: auto !important; }}
+/* Raised above Streamlit Community Cloud's own badges in the bottom-right corner. */
+.st-key-gn_chat_fab {{ position: fixed; right: 24px; bottom: 64px; z-index: 999; width: auto !important; }}
 .st-key-gn_chat_fab [data-testid="stPopover"] button {{
   background: var(--accent); color: #fff; border: none; border-radius: 999px; padding: 0.7rem 1.25rem;
   box-shadow: 0 6px 22px rgba(43,34,28,.28); letter-spacing: 1.5px; }}
@@ -193,7 +194,7 @@ a {{ color: var(--accent); }}
 .st-key-gn_chat_body [data-testid="InputInstructions"] {{ display: none; }}
 .st-key-gn_chat_body [data-testid="stFormSubmitButton"] button, .st-key-ask_clear button {{
   padding-left: 0.4rem; padding-right: 0.4rem; letter-spacing: 1px; min-width: 0; }}
-@media (max-width: 640px) {{ .st-key-gn_chat_fab {{ right: 12px; bottom: 12px; }} }}
+@media (max-width: 640px) {{ .st-key-gn_chat_fab {{ right: 12px; bottom: 60px; }} }}
 .stTabs [data-baseweb="tab-panel"] {{ padding-top: 2rem; }}
 
 /* Buttons: crisp, square-ish, spaced uppercase */
