@@ -326,9 +326,17 @@ async def main():
 
         # 8. Community
         await cap("Reviews and <b>hidden-nut warnings</b> from the community", line=15)
-        await tab("COMMUNITY")
-        await c.js(IDLE, wait=1.0)
-        await c.js(f"({SCROLL})('[role=tabpanel]','',60)", wait=3.0)
+        # Opened straight at the hidden-nut warnings, so the review list (with posters' nicknames) is never on screen.
+        await c.js("""(async()=>{const t=[...document.querySelectorAll('[role=tab]')].find(x=>x.innerText.toUpperCase().includes('COMMUNITY'));
+            t.click();let h=null;
+            for(let i=0;i<40&&!h;i++){await new Promise(r=>setTimeout(r,50));
+              h=[...document.querySelectorAll('h3')].find(x=>x.offsetParent&&x.innerText.includes('Hidden-nut warnings'));}
+            if(!h)return false;
+            const c=[...document.querySelectorAll('*')].find(e=>{const s=getComputedStyle(e);
+              return (s.overflowY==='auto'||s.overflowY==='scroll')&&e.scrollHeight>e.clientHeight+50&&e.clientHeight>400});
+            c.scrollTo({top:c.scrollTop+h.getBoundingClientRect().top-c.getBoundingClientRect().top-40,behavior:'instant'});
+            return true})()""")
+        await c.js(IDLE, wait=3.6)
 
         # 9. How it works: the agent team and the trace of the last request
         await cap("<b>Seven agents</b>, every hand-off and token shown", line=16)
