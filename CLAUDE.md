@@ -134,7 +134,7 @@ limit, loop detection, session + daily token budgets. Only Analyst, Summarizer, 
   (retake with `python report/shots.py report/img` while the app runs; needs Chrome + websockets). Research: report/research-notes.md.
 - First users (Oct 21): the student (feedback form, 20 -> 5 min) and two testers (8 -> 2, 13 -> 1 min,
   relayed by the student). Both testers consented to anonymous quotes in the report and slides.
-- Demo video: report/go-nuts-demo.mp4 (57 s, includes the Food Guide chat, voice Allison (Enhanced), made with `python report/demo_video.py OUT`
+- Demo video: report/go-nuts-demo.mp4 (2 min 3 s, 17 narrated scenes incl. the Food Guide chat and agent trace, voice Allison (Enhanced), made with `python report/demo_video.py OUT`
   + ffmpeg, 0 tokens). Olmo Bagels: the map entry 'the-bagelry' (93 Whitney) was renamed by hand; its menu is
   on Toast (blocked), and a scan's OpenStreetMap update may rename it back. Uber Eats / DoorDash: not used (terms).
 - Food Guide chat (floating "Ask about a dish" button, bottom right of every page; app.food_guide_chat, gonuts/agents/guide.py): plain code finds named restaurants (typo-tolerant) and real

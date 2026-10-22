@@ -1,4 +1,4 @@
-"""Record a captioned demo of Go Nuts (under 1 minute) with headless Chrome.
+"""Record a narrated, captioned demo of Go Nuts (about 2 minutes) with headless Chrome.
 
     python report/demo_video.py OUT_DIR      (app running on http://localhost:8501)
 
@@ -29,17 +29,26 @@ VOICE, RATE = "Allison (Enhanced)", 185  # the student's pick (free Enhanced voi
 # Counts come from the database, so the video matches the app after every scan.
 _SEED = sqlite3.connect(Path(__file__).resolve().parent.parent / "seed" / "new_haven.db")
 MAPPED = _SEED.execute("SELECT COUNT(*) FROM restaurants WHERE lat IS NOT NULL").fetchone()[0]
+CHECKED = _SEED.execute("SELECT COUNT(DISTINCT restaurant_key) FROM analyses "
+                        "WHERE json_extract(result, '$.is_menu') = 1").fetchone()[0]
 NARRATION = [
-    "Tell Go Nuts what you're allergic to.",
-    "Search any restaurant by name.",
-    "See its nut-risk score, and call to ask with one tap.",
-    "Every dish is rated from the real menu, quoting its own words.",
-    f"The map shows {MAPPED} New Haven-area restaurants, colored by score.",
-    "Or check any menu. Paste it, link it, or snap a photo.",
-    "Hidden instructions in a menu are blocked.",
-    "Got a question? Ask the Food Guide, from any page.",
-    "If you've already eaten something, it starts with the emergency steps.",
-    "And show staff an allergy chef card, in six languages.",
+    "Hi, this is Go Nuts. It helps people with peanut and tree-nut allergies eat out, starting in New Haven.",
+    "First, tell it what you're allergic to. You can choose to remember it on this device, and nothing is stored about you.",
+    "Search any restaurant by name. Let's try September in Bangkok.",
+    "You get its nut-risk score, the address, and a button to call the restaurant and ask.",
+    "Every dish is rated from the restaurant's real menu, with the menu's own words as evidence.",
+    "Not sure what a label means? Each one is explained, and Go Nuts never calls food safe.",
+    "You can also show only the dishes with no nuts listed, as a starting point for your order.",
+    f"Or browse all {CHECKED} checked restaurants, ranked for your allergies.",
+    f"The map shows {MAPPED} New Haven-area restaurants, colored by score. Gray pins aren't checked yet, and anyone can add a menu photo.",
+    "You can also check any menu. Paste it, link it, or snap a photo.",
+    "This test menu hides instructions telling the AI to call everything nut-free. They're removed before the AI reads it, and the nut dishes are still flagged.",
+    "Got a question? The Food Guide chat is on every page.",
+    "If you've already eaten something, it starts with the emergency steps, then real counts from checked menus.",
+    "It also knows the restaurants Go Nuts has checked, so you can ask what to order.",
+    "Show staff an allergy chef card, in six languages, including Spanish and Arabic.",
+    "The community shares reviews and warnings about hidden nuts, which make future checks more careful.",
+    "And How it works shows the team of seven agents, with every hand-off and token for your last request.",
     "Go Nuts never calls food safe. Always tell your server, and carry epinephrine.",
 ]
 
@@ -212,32 +221,61 @@ async def main():
             return c.js(f"""(()=>{{const t=[...document.querySelectorAll('[role=tab]')].find(x=>
                 x.innerText.toUpperCase().includes({json.dumps(name)}));t.click();return true}})()""")
 
-        # Each step: caption first, then the action, then a short hold.
-        # 1. Profile
-        await cap("Tell Go Nuts <b>what you're allergic to</b>", 1.4, line=0)
-        await click("button", "CONTINUE", 1.0)
+        async def chat_ask(text):
+            await c.js("(()=>{const i=document.querySelector('[data-testid=stPopoverBody] input');i.focus();i.click();return true})()", wait=0.3)
+            for ch in text:
+                await c.call("Input.insertText", text=ch)
+                await asyncio.sleep(0.035)
+            await asyncio.sleep(0.4)
+            n = await c.js("document.querySelectorAll('[data-testid=stPopoverBody] [data-testid=stChatMessage]').length")
+            await c.js("[...document.querySelectorAll('[data-testid=stPopoverBody] button')].find(b=>b.innerText.trim().toUpperCase()==='ASK').click()")
+            await c.js(f"""(async()=>{{for(let i=0;i<160;i++){{await new Promise(r=>setTimeout(r,250));
+                if(document.querySelectorAll('[data-testid=stPopoverBody] [data-testid=stChatMessage]').length>={n + 2}
+                   &&document.querySelector('[data-testid=stPopoverBody] .st-key-ask_clear')
+                   &&!document.querySelector('[data-testid=stStatusWidget]'))return true;}}return false}})()""", wait=0.4)
 
-        # 2. Search a restaurant: score and call button, then dish by dish
-        await cap("Search any restaurant by name", line=1)
+        # Each step: caption first, then the action, then a hold while the narration plays.
+        # 1. Welcome and profile
+        await cap("Go Nuts helps people with <b>nut allergies</b> eat out", 0.5, line=0)
+        await c.js(f"({SCROLL})('[data-testid=stMarkdownContainer]','Welcome. What are you',140)")
+        await cap("Tell it <b>what you're allergic to</b>", line=1)
+        await click("label", "Remember on this device", 0.6, really=False)
+        await click("button", "CONTINUE", 0.8)
+
+        # 2. Search a restaurant: score and call button, dish by dish, labels, filter
+        await cap("Search any restaurant by name", line=2)
         await pick("Search", "September")
-        await cap("See its <b>nut-risk score</b>, and <b>call to ask</b> in one tap", line=2)
-        await c.js(f"({SCROLL})('h3','September in Bangkok',80)", wait=3.0)
-        await cap("Every dish is rated, <b>quoting the menu's own words</b>", line=3)
+        await cap("Its <b>nut-risk score</b>, address, and <b>call to ask</b>", line=3)
+        await c.js(f"({SCROLL})('h3','September in Bangkok',80)", wait=1.5)
+        await cap("Every dish is rated, <b>quoting the menu's own words</b>", line=4)
         await rclick("summary", "Dish by dish")
-        await c.js(f"({SCROLL})('summary','Dish by dish',60)", wait=2.8)
-
+        await c.js(f"({SCROLL})('summary','Dish by dish',60)", wait=1.5)
+        await cap("Every label is explained; <b>nothing is ever called safe</b>", line=5)
+        await c.js(f"({SCROLL})('button','WHAT DO THESE LABELS',200)")
+        await click("button", "WHAT DO THESE LABELS", 2.6)
+        await click("button", "WHAT DO THESE LABELS", 0.3)  # close it again
+        await cap("Show only dishes with <b>no nuts listed</b>", line=6)
+        await rclick("label", "Only show dishes with no nuts listed")
+        await c.js(f"({SCROLL})('summary','Dish by dish',60)", wait=2.0)
+        await rclick("label", "Only show dishes with no nuts listed")
         await rclick("summary", "Dish by dish")  # fold the long dish list away again
 
+        # 3. Browse, ranked for the profile
+        await cap(f"Browse <b>all {CHECKED} checked restaurants</b>, ranked for you", line=7)
+        await c.js(TOP, wait=0.4)
+        await click("button", "BROWSE ALL", 0.4)
+        await c.js(f"({SCROLL})('h4','ranked',80)", wait=2.0)
+
         # 4. Map
-        await cap(f"See <b>{MAPPED} restaurants</b> on the map, colored by score", line=4)
-        await c.js(TOP, wait=0.5)
+        await cap(f"See <b>{MAPPED} restaurants</b> on the map, colored by score", line=8)
+        await c.js(TOP, wait=0.4)
         await tab("MAP")
-        await c.js(IDLE, wait=1.2)
-        await c.js(f"({SCROLL})('[data-testid=stDeckGlJsonChart]','',70)", wait=2.4)
+        await c.js(IDLE, wait=1.0)
+        await c.js(f"({SCROLL})('[data-testid=stDeckGlJsonChart]','',70)", wait=3.5)
 
         # 5. Check a menu: hidden instructions blocked
-        await cap("Or check <b>any menu</b>: paste it, link it or photograph it", line=5)
-        await c.js(TOP, wait=0.5)
+        await cap("Or check <b>any menu</b>: paste it, link it or photograph it", line=9)
+        await c.js(TOP, wait=0.4)
         await tab("CHECK A MENU")
         await c.js(IDLE, wait=0.6)
         await pick("Or try a sample menu (made up for testing)", "injection")
@@ -245,50 +283,61 @@ async def main():
         await c.js("""(async()=>{for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,250));
             if([...document.querySelectorAll('[data-testid=stAlert]')].some(a=>a.innerText.includes('Blocked')))return true;}
             return false})()""")
-        await cap("Hidden instructions in a menu get <b>blocked</b>", line=6)
-        await c.js(f"({SCROLL})('[data-testid=stAlert]','Blocked',260)", wait=3.4)
+        await cap("Hidden instructions in a menu get <b>blocked</b>; nut dishes still flagged", line=10)
+        await c.js(f"({SCROLL})('[data-testid=stAlert]','Blocked',260)", wait=4.0)
+        await c.js(f"({SCROLL})('.gn-scores','',200)", wait=2.0)
 
         # 6. The Food Guide chat (floating button, bottom right of every page)
         await c.js("document.getElementById('demo-cap').style.left='36%'")  # keep clear of the chat panel
-        await cap("Got a question? Ask the <b>Food Guide</b>, from any page", line=7)
+        await cap("Got a question? Ask the <b>Food Guide</b>, from any page", line=11)
         await c.js(TOP, wait=0.4)
         await c.js("document.querySelector('.st-key-gn_chat_fab button').click()", wait=1.0)
-        await c.js("(()=>{const i=document.querySelector('[data-testid=stPopoverBody] input');i.focus();i.click();return true})()", wait=0.3)
-        for ch in "I just ate pad thai. Are there usually nuts in it?":
-            await c.call("Input.insertText", text=ch)
-            await asyncio.sleep(0.035)
-        await asyncio.sleep(0.4)
-        await c.js("[...document.querySelectorAll('[data-testid=stPopoverBody] button')].find(b=>b.innerText.trim().toUpperCase()==='ASK').click()")
-        await c.js("""(async()=>{for(let i=0;i<120;i++){await new Promise(r=>setTimeout(r,250));
-            if(document.querySelectorAll('[data-testid=stPopoverBody] [data-testid=stChatMessage]').length>=2
-               &&document.querySelector('[data-testid=stPopoverBody] .st-key-ask_clear')
-               &&!document.querySelector('[data-testid=stStatusWidget]'))return true;}return false})()""", wait=0.4)
-        await cap("Already ate something? It <b>starts with the emergency steps</b>", line=8)
-        await asyncio.sleep(3.8)
+        await chat_ask("I just ate pad thai. Are there usually nuts in it?")
+        await cap("Already ate something? It <b>starts with the emergency steps</b>", line=12)
+        await asyncio.sleep(3.0)
+        await cap("Ask what to order at a <b>checked restaurant</b>", line=13)
+        await chat_ask("What could I order at September in Bangkok?")
+        await asyncio.sleep(4.0)
         await c.js("document.querySelector('.st-key-gn_chat_fab button').click()", wait=0.5)  # close the chat
         await c.js("document.getElementById('demo-cap').style.left='50%'")
 
         # 7. Chef card
-        await cap("Show staff an <b>allergy chef card</b>, in six languages", line=9)
+        await cap("Show staff an <b>allergy chef card</b>, in six languages", line=14)
         await c.js(TOP, wait=0.6)
         await click("button", "CHEF CARD", 1.2)
         # The card opens in a dialog that covers the page, so the caption moves onto the dialog.
         await c.js("""(()=>{const d=document.querySelector('[role=dialog]'),c=document.getElementById('demo-cap');
             if(d&&c){d.prepend(c);Object.assign(c.style,{position:'relative',bottom:'auto',left:'auto',transform:'none',
-            margin:'10px auto 4px',width:'fit-content'});}return !!d})()""", wait=0.4)
-        await c.js("""(()=>{const b=[...document.querySelectorAll('[role=dialog] button')].find(x=>x.innerText.trim()==='Español');
-            b&&b.click();return !!b})()""")
-        await c.js(IDLE, wait=2.2)
-
+            margin:'10px auto 4px',width:'fit-content'});}return !!d})()""", wait=1.6)
+        for lang in ("Español", "العربية"):
+            await c.js(f"""(()=>{{const b=[...document.querySelectorAll('[role=dialog] button')].find(x=>x.innerText.trim()==={json.dumps(lang)});
+                b&&b.click();return !!b}})()""")
+            await c.js(IDLE, wait=2.2)
         box = await c.js("""(()=>{const b=[...document.querySelectorAll('[role=dialog] button')].find(x=>
             (x.getAttribute('aria-label')||'').toLowerCase().includes('close'));if(!b)return null;
             const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()""")
+        cap_el = "(()=>{const c=document.getElementById('demo-cap');document.body.appendChild(c);" \
+                 "Object.assign(c.style,{position:'fixed',bottom:'28px',left:'50%',transform:'translateX(-50%)',margin:'0'});return true})()"
+        await c.js(cap_el)  # the caption goes back to the page before the dialog closes
         if box:  # close the chef card dialog with a real click on its X
             for t in ("mousePressed", "mouseReleased"):
                 await c.call("Input.dispatchMouseEvent", type=t, x=box[0], y=box[1], button="left", clickCount=1)
         await asyncio.sleep(0.5)
 
-        # 8. End card (about 4 s)
+        # 8. Community
+        await cap("Reviews and <b>hidden-nut warnings</b> from the community", line=15)
+        await tab("COMMUNITY")
+        await c.js(IDLE, wait=1.0)
+        await c.js(f"({SCROLL})('[role=tabpanel]','',60)", wait=3.0)
+
+        # 9. How it works: the agent team and the trace of the last request
+        await cap("<b>Seven agents</b>, every hand-off and token shown", line=16)
+        await tab("HOW IT WORKS")
+        await c.js(IDLE, wait=0.6)
+        await click("button", "YOUR LAST REQUEST", 0.8)
+        await c.js(f"({SCROLL})('h3','How Go Nuts works',60)", wait=4.0)
+
+        # 10. End card
         while time.monotonic() < voice_end[0]:
             await asyncio.sleep(0.05)
         await cap("")
@@ -296,8 +345,8 @@ async def main():
             "<div class='b'>go <i>nuts</i></div><p>Eat out with a nut allergy, without the guesswork.</p>"+
             "<p style='font-size:19px'>Go Nuts never calls food \\"safe\\". Always tell your server and carry epinephrine.</p>";
             document.body.appendChild(e);requestAnimationFrame(()=>e.style.opacity=1);return true})()""", wait=0.3)
-        await speak(10)
-        await asyncio.sleep(lengths[10] + 0.8)
+        await speak(len(NARRATION) - 1)
+        await asyncio.sleep(lengths[-1] + 0.8)
         rec.on = False
         await task
         start = rec.frames[0][0]
