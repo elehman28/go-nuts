@@ -27,7 +27,9 @@ TESTS = int(re.search(r"(\d+) tests? collected", subprocess.run(
 AUTHOR = "Elise Lehman"
 COURSE = "MGT 409 · AI Foundations for Managers · Yale SOM · Fall 2026"
 APP_LINK = "<a href='https://go-nuts-mepgzkf6appmyn8z3rqm8ts.streamlit.app/'>go-nuts-mepgzkf6appmyn8z3rqm8ts.streamlit.app</a>"
-REPO_LINK = "<a href='https://github.com/elehman28/go-nuts'>github.com/elehman28/go-nuts</a>"
+REPO_URL = "https://github.com/elehman28/go-nuts"  # public repo (graders clone it from here)
+REPO_LINK = f"<a href='{REPO_URL}'>{REPO_URL}</a> (public repository)"
+CLONE = f"git clone {REPO_URL}.git"
 
 
 def b64(path: Path) -> str:
@@ -107,7 +109,7 @@ city_refresh = S["menus_checked"] * fresh * (30 / 14)  # every checked menu re-r
 daily_capacity = int(2_000_000 / max(S["menu_run_tokens_median"], 1))
 R = S["risk"]
 V = dict(
-    author=AUTHOR, course=COURSE, app_link=APP_LINK, repo_link=REPO_LINK,
+    author=AUTHOR, course=COURSE, app_link=APP_LINK, repo_link=REPO_LINK, clone=CLONE,
     menus=n(S["menus_checked"]), menus_full=n(S["menus_full"]), menus_partial=n(S["menus_partial"]),
     mapped=n(S["restaurants_mapped"]), dishes=n(S["dishes"]), contains=n(R.get("contains", 0)),
     likely=n(R.get("likely", 0)), unclear=n(R.get("unclear", 0)), none_listed=n(R.get("none_listed", 0)),
@@ -175,7 +177,7 @@ svg{width:100%;height:auto;margin:.6rem 0}
 <h1>Eating out with a nut allergy, without the guesswork</h1>
 <p class="lede">An agent team that reads restaurants' real menus, rates every dish for peanut and tree-nut risk with the menu's own words as evidence, and helps diners call ahead.</p>
 <p class="meta">${author} · ${course} · October 2026<br>
-Live app: <b>${app_link}</b><br>GitHub: <b>${repo_link}</b><br>Demo video (2 min, narrated): <b><a href='https://github.com/elehman28/go-nuts/blob/main/report/go-nuts-demo.mp4'>report/go-nuts-demo.mp4</a></b><br>
+Live app: <b>${app_link}</b><br>GitHub: <b>${repo_link}</b><br>Clone: <code>${clone}</code><br>Demo video (2 min, narrated): <b><a href='https://github.com/elehman28/go-nuts/blob/main/report/go-nuts-demo.mp4'>report/go-nuts-demo.mp4</a></b><br>
 Model: gpt-6-luna via Portkey (the only model on the course key). All numbers in this report are computed from the app's own database and usage log (${first} to ${last}).</p>
 
 <div>
@@ -387,7 +389,8 @@ svg{max-height:480px}
 
 <section><div class="brand">go <i>nuts</i></div><h1>Eat out with a nut allergy, without the guesswork</h1>
 <p class="small">${author} · MGT 409 Final Project · October 2026</p>
-<p class="note">App: ${app_link} · Code: ${repo_link}</p></section>
+<p class="small" style="margin-top:1.2em"><b>GitHub (public):</b> ${repo_link}<br><code>${clone}</code></p>
+<p class="note">Live app: ${app_link}</p></section>
 
 <section><div class="kicker">The problem</div><h2>Every meal out starts with homework</h2>
 <div class="cols"><div><ul class="small"><li>I have a nut allergy, and so do some of my family. We read every menu, guess at sauces, and call ahead.</li>
